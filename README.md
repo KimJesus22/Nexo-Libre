@@ -66,6 +66,20 @@ src/
 └── proxy.ts                # Proxy de Next.js 16 (intercepta peticiones)
 ```
 
+## Progressive Web App (PWA)
+
+NexoLibre funciona como app nativa sin tiendas. Configuración:
+
+- **`manifest.json`**: `display: standalone`, `theme_color: #09090b`, íconos 192/512, shortcuts a `/chat` y `/ajustes`
+- **`sw.js`**: Service Worker con caché dual:
+  - **Cache-First**: assets estáticos (`/_next/static/`, fuentes, íconos)
+  - **Network-First**: páginas HTML y contenido dinámico
+  - **Excluye**: Supabase API, auth callbacks, extensiones
+- **`RegistroSW.tsx`**: registra el SW solo en producción, comprueba actualizaciones cada hora
+- **Meta tags**: `apple-mobile-web-app-capable`, `theme-color`, `apple-touch-icon`
+- **CSP**: `manifest-src 'self'` + `worker-src 'self' blob:`
+
+
 ## Cabeceras HTTP de seguridad (`next.config.ts`)
 
 Todas las rutas (`/:path*`) reciben las siguientes cabeceras:

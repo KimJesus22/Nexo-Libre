@@ -28,8 +28,9 @@ const cspDirectives = [
   // Fallback: bloquea todo lo que no tenga directiva explícita
   "default-src 'self'",
 
-  // Scripts: solo del mismo origen (Next.js chunks)
-  "script-src 'self'",
+  // Scripts: self + inline (Next.js requiere inline scripts para hidratación)
+  // TODO: migrar a nonces cuando Next.js lo soporte nativamente con Turbopack
+  "script-src 'self' 'unsafe-inline'",
 
   // Estilos: self + inline (requerido por Tailwind CSS y Next.js)
   "style-src 'self' 'unsafe-inline'",
@@ -54,6 +55,9 @@ const cspDirectives = [
 
   // Base URI: previene ataques de base tag injection
   "base-uri 'self'",
+
+  // Manifest: solo del mismo origen (PWA)
+  "manifest-src 'self'",
 
   // Forzar HTTPS en recursos
   "upgrade-insecure-requests",
