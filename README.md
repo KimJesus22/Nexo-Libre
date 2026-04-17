@@ -156,6 +156,15 @@ Ruta protegida `/ajustes` con controles de privacidad local:
 - **Toggle accesible**: `role="switch"` con `aria-checked`, animación `cubic-bezier(0.4,0,0.2,1)`
 - **Integración**: `BotonCerrarSesion` ejecuta `ejecutarPurgaSiEfimero()` client-side antes del Server Action
 
+## Onboarding de primer inicio de sesión
+
+Modal no-dismissable que aparece cuando `nombre_usuario` es `null` en la tabla `perfiles`:
+
+- **Detección server-side**: el layout protegido consulta `perfiles.nombre_usuario` y pasa `requiereOnboarding` al provider client
+- **Username**: validación en tiempo real con regex (`^[a-z0-9_]{3,30}$`), debounce 400ms para verificar unicidad en DB
+- **Avatar**: upload a Supabase Storage bucket `avatares`, ruta `{userId}/avatar.{ext}`, límite 2MB, preview instantáneo
+- **Migración SQL** (`003_storage_avatares.sql`): bucket público con RLS que confina cada usuario a su carpeta `userId/*`
+
 ## Identificadores públicos (`IdPublico`)
 
 Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:
