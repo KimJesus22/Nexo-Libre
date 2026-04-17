@@ -77,6 +77,24 @@ El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfile
 - Política RLS **restrictiva** para 2FA: exige `aal2` si el usuario tiene TOTP activado.
 - Migración **idempotente** (segura de ejecutar múltiples veces).
 
+## Sistema de chat en tiempo real
+
+Esquema SQL en `supabase/migrations/002_sistema_chat.sql`. Arquitectura:
+
+```
+auth.users ─┬─ participantes_chat ─── chats
+             │         │
+             └──── mensajes ──────────┘ (Realtime)
+```
+
+- **3 tablas**: `chats` (conversaciones), `participantes_chat` (pivote M:N), `mensajes` (con Realtime)
+- **Supabase Realtime**: habilitado en `mensajes` via `alter publication supabase_realtime add table public.mensajes`
+- **Replica Identity Full**: envía el row completo en eventos UPDATE/DELETE
+- **RLS estricta por participación**: un usuario solo puede leer/insertar mensajes en chats donde es participante
+- **Anti-suplantación**: `(select auth.uid()) = autor_id` en INSERT impide enviar mensajes como otro usuario
+- **Trigger**: actualiza `chats.actualizado_en` al enviar mensaje (para ordenar por último mensaje)
+- **Permisos por columna**: `grant update (contenido, editado)` en mensajes, `grant update (nombre)` en chats
+
 ## Identificadores públicos (`IdPublico`)
 
 Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:
