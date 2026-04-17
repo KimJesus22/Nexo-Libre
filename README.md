@@ -126,6 +126,16 @@ Módulo en `src/lib/crypto/e2ee.ts`. Supabase **nunca ve texto plano** — solo 
 - **Almacenamiento de claves**: protegidas en localStorage con PBKDF2 (600k iteraciones SHA-256 + sal)
 - **Integración**: el hook cifra antes de `INSERT` y descifra al cargar y al recibir via Realtime
 
+### Buscador seguro de usuarios
+
+Componente en `src/components/ui/BuscadorUsuarios/BuscadorUsuarios.tsx`:
+
+- **Anti-filtración**: NO permite búsqueda por nombre — solo por ID público (base62) o correo electrónico exacto
+- **Debounce**: 400ms de espera antes de consultar Supabase
+- **Validación de formato**: regex para email (`^[^\s@]+@[^\s@]+\.[^\s@]+$`) e ID alfanumérico (`^[0-9a-zA-Z]{6,32}$`)
+- **Auto-exclusión**: el usuario actual y participantes existentes se filtran de los resultados
+- **Ayuda contextual**: mensaje de privacidad visible cuando el input está vacío
+
 ## Identificadores públicos (`IdPublico`)
 
 Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:
