@@ -29,6 +29,7 @@ const RUTAS_PUBLICAS: readonly string[] = [
 /* ── Prefijos de rutas protegidas ─────────────────────────────────────────── */
 const PREFIJOS_PROTEGIDOS: readonly string[] = [
   '/panel',
+  '/chat',
 ] as const
 
 /**
