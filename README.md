@@ -110,6 +110,16 @@ Integración de 2FA vía TOTP (Google Authenticator, Authy, etc.) usando la API 
 
 Flujo: Login → `/verificar-2fa` → (sin 2FA → `/panel` | con 2FA → código TOTP → `/panel`)
 
+## Dashboard
+
+El panel de control (`/panel`) muestra métricas de identidad y seguridad con gráficos animados:
+
+- **Score de seguridad**: progreso radial SVG animado (geometría polar: `x = cx + r·cos(θ)`)
+- **Checklist de identidad**: email verificado, 2FA activo, sesión vigente, sin teléfono vinculado
+- **Gráfico de barras**: actividad semanal con IntersectionObserver y easing cúbico
+- **Curva suavizada**: sesiones mensuales con splines Catmull-Rom → Bézier (C¹ continua)
+- **Contadores animados**: smoothstep de Hermite `f(t) = 3t² − 2t³` para transiciones suaves
+
 ## Supabase
 
 ### Configurar credenciales
