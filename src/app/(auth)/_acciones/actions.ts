@@ -6,6 +6,10 @@
  * Todas las operaciones de auth se ejecutan en el servidor,
  * usando el cliente de Supabase con cookies para mantener la sesión.
  *
+ * Validación: Zod valida todos los inputs ANTES de tocar Supabase.
+ *   - Correos: formato RFC 5322, trim + lowercase
+ *   - Contraseñas: 8-128 caracteres
+ *
  * Métodos disponibles:
  * - iniciarSesionConMagicLink — envia enlace mágico al correo
  * - iniciarSesionConCorreo    — login con email + contraseña
@@ -16,21 +20,29 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import {
+  esquemaMagicLink,
+  esquemaInicioSesion,
+  esquemaRegistro,
+  validarFormData,
+} from '@/lib/validacion'
 
 /* ── Magic Link ──────────────────────────────────────────────────────────── */
 
 export async function iniciarSesionConMagicLink(formData: FormData) {
-  const supabase = await createClient()
-  const email = formData.get('email') as string
+  // Validar con Zod ANTES de interactuar con Supabase
+  const resultado = validarFormData(esquemaMagicLink, formData)
 
-  if (!email) {
-    return { error: 'El correo electrónico es obligatorio.' }
+  if (!resultado.success) {
+    return { error: resultado.error }
   }
 
+  const supabase = await createClient()
+
   const { error } = await supabase.auth.signInWithOtp({
-    email,
+    email: resultado.data.email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? '' : ''}${getBaseUrl()}/auth/callback`,
+      emailRedirectTo: `${getBaseUrl()}/auth/callback`,
     },
   })
 
@@ -44,17 +56,17 @@ export async function iniciarSesionConMagicLink(formData: FormData) {
 /* ── Email + Contraseña: Iniciar sesión ──────────────────────────────────── */
 
 export async function iniciarSesionConCorreo(formData: FormData) {
-  const supabase = await createClient()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const resultado = validarFormData(esquemaInicioSesion, formData)
 
-  if (!email || !password) {
-    return { error: 'El correo y la contraseña son obligatorios.' }
+  if (!resultado.success) {
+    return { error: resultado.error }
   }
 
+  const supabase = await createClient()
+
   const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+    email: resultado.data.email,
+    password: resultado.data.password,
   })
 
   if (error) {
@@ -68,21 +80,17 @@ export async function iniciarSesionConCorreo(formData: FormData) {
 /* ── Email + Contraseña: Registrarse ─────────────────────────────────────── */
 
 export async function registrarConCorreo(formData: FormData) {
+  const resultado = validarFormData(esquemaRegistro, formData)
+
+  if (!resultado.success) {
+    return { error: resultado.error }
+  }
+
   const supabase = await createClient()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-
-  if (!email || !password) {
-    return { error: 'El correo y la contraseña son obligatorios.' }
-  }
-
-  if (password.length < 8) {
-    return { error: 'La contraseña debe tener al menos 8 caracteres.' }
-  }
 
   const { error } = await supabase.auth.signUp({
-    email,
-    password,
+    email: resultado.data.email,
+    password: resultado.data.password,
     options: {
       emailRedirectTo: `${getBaseUrl()}/auth/callback`,
     },

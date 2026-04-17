@@ -28,6 +28,7 @@ import {
   obtenerOCrearClaveChat,
   esMensajeCifrado,
 } from '@/lib/crypto/e2ee'
+import { esquemaContenidoMensaje } from '@/lib/validacion'
 
 /* ── Tipos de base de datos ───────────────────────────────────────────────── */
 interface MensajeDB {
@@ -340,13 +341,21 @@ export function useChatRealtime() {
     async (contenido: string) => {
       if (!chatActivoId || !userId) return
 
+      // Validar contenido con Zod ANTES de cualquier operación
+      const resultado = esquemaContenidoMensaje.safeParse(contenido)
+      if (!resultado.success) {
+        console.warn('Mensaje rechazado por validación:', resultado.error.issues[0]?.message)
+        return
+      }
+      const contenidoValidado = resultado.data
+
       // Optimistic update: agregar inmediatamente a la UI
       const idTemporal = `temp-${Date.now()}`
       const mensajeOptimista: Mensaje = {
         id: idTemporal,
         autorId: userId,
         autorNombre: nombresCache.current[userId] ?? 'Tú',
-        contenido,
+        contenido: contenidoValidado,
         creadoEn: formatearHora(new Date().toISOString()),
         esMio: true,
       }
@@ -359,7 +368,7 @@ export function useChatRealtime() {
           c.id === chatActivoId
             ? {
                 ...c,
-                ultimoMensaje: contenido,
+                ultimoMensaje: contenidoValidado,
                 ultimaFecha: formatearHora(new Date().toISOString()),
               }
             : c
@@ -367,10 +376,10 @@ export function useChatRealtime() {
       )
 
       // Cifrar contenido con E2EE antes de enviar a Supabase
-      let contenidoCifrado = contenido
+      let contenidoCifrado = contenidoValidado
       if (claveE2EE.current) {
         try {
-          contenidoCifrado = await cifrarMensaje(contenido, claveE2EE.current)
+          contenidoCifrado = await cifrarMensaje(contenidoValidado, claveE2EE.current)
         } catch (e) {
           console.error('E2EE: Error al cifrar, enviando sin cifrar:', e)
         }

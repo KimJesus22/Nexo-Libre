@@ -88,6 +88,20 @@ Todas las rutas (`/:path*`) reciben las siguientes cabeceras:
 - `frame-ancestors 'none'` — refuerza X-Frame-Options
 - `upgrade-insecure-requests` — fuerza HTTPS
 
+## Validación server-side (Zod)
+
+Módulo en `src/lib/validacion.ts` — toda entrada del usuario pasa por Zod **antes** de tocar Supabase:
+
+| Esquema | Campos | Reglas |
+|---------|--------|--------|
+| `esquemaMagicLink` | email | RFC 5322, trim, lowercase, max 254 |
+| `esquemaInicioSesion` | email + password | Email validado + password 8-128 chars |
+| `esquemaRegistro` | email + password | Idéntico a login |
+| `esquemaContenidoMensaje` | texto | Max 5000 chars, sin `<script>`, `<iframe>`, `on*=`, `javascript:` |
+| `esquemaUsername` | seudónimo | Regex `^[a-z0-9_]{3,30}$` |
+
+**Anti-XSS**: regex `REGEX_HTML_PELIGROSO` rechaza etiquetas `script|iframe|object|embed|form|link|meta|base|svg`, atributos `on*=`, URIs `javascript:` y `data:text/html`.
+
 ## Perfiles de usuario
 
 El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfiles_usuario.sql`. Incluye:
