@@ -26,6 +26,11 @@ const RUTAS_PUBLICAS: readonly string[] = [
   '/auth/callback',
 ] as const
 
+/* ── Prefijos de rutas públicas (matching parcial) ────────────────────────── */
+const PREFIJOS_PUBLICOS: readonly string[] = [
+  '/join/',      // Invitaciones: /join/[token]
+] as const
+
 /* ── Prefijos de rutas protegidas ─────────────────────────────────────────── */
 const PREFIJOS_PROTEGIDOS: readonly string[] = [
   '/panel',
@@ -40,10 +45,13 @@ function esRutaPublica(pathname: string): boolean {
   // Coincidencia exacta
   if (RUTAS_PUBLICAS.includes(pathname)) return true
 
-  // Coincidencia por prefijo (p.ej. /auth/callback?code=...)
-  return RUTAS_PUBLICAS.some(
+  // Coincidencia por prefijo (p.ej. /auth/callback?code=..., /join/abc123)
+  if (RUTAS_PUBLICAS.some(
     (ruta) => ruta.endsWith('/callback') && pathname.startsWith(ruta)
-  )
+  )) return true
+
+  // Prefijos públicos (p.ej. /join/[token])
+  return PREFIJOS_PUBLICOS.some((prefijo) => pathname.startsWith(prefijo))
 }
 
 /**

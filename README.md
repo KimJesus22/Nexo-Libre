@@ -130,6 +130,18 @@ CHECK constraints nativos de la DB que actúan como **última línea de defensa*
 
 **Auditoría de clientes Supabase**: los 3 clientes (browser, server, proxy) usan exclusivamente `PUBLISHABLE_KEY` (anon). No existe `service_role` en el código — todas las operaciones pasan por RLS.
 
+## Invitaciones seguras (`005_invitaciones.sql`)
+
+Sistema de invitaciones de un solo uso con token criptográfico:
+
+- **Token**: `crypto.randomBytes(32)` → 64 hex chars, validado por CHECK `^[a-f0-9]{64}$`
+- **Expiración**: 24 horas (`caduca_en = now() + interval '24 hours'`)
+- **Un solo uso**: función atómica `privado.consumir_invitacion()` (SECURITY DEFINER) marca `usado = true` + `usado_por` + `usado_en` en un solo UPDATE con WHERE
+- **Límite**: máximo 5 invitaciones activas por usuario (validado server-side)
+- **RLS**: solo el creador puede ver sus invitaciones, UPDATE bloqueado desde el cliente
+- **Ruta**: `/join/[token]` — pública, muestra CTA para registro si no autenticado
+- **UI**: `PanelInvitaciones` con generación, copia al portapapeles, historial con estados
+
 ## Perfiles de usuario
 
 El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfiles_usuario.sql`. Incluye:
