@@ -22,6 +22,7 @@ import { useState, useCallback } from 'react'
 import BarraLateralChats, { type ChatResumen } from './BarraLateralChats'
 import VentanaChat, { type Mensaje } from './VentanaChat'
 import { useChatRealtime } from './useChatRealtime'
+import { usePresenciaGlobal, useEscribiendo } from './usePresencia'
 
 /* ── Datos demo (fallback sin conexión) ───────────────────────────────────── */
 const CHATS_DEMO: ChatResumen[] = [
@@ -97,6 +98,14 @@ const MENSAJES_DEMO: Record<string, Mensaje[]> = {
 export default function InterfazChat() {
   const rt = useChatRealtime()
   const [busqueda, setBusqueda] = useState('')
+
+  // Presencia global (online/offline)
+  const { estaEnLinea } = usePresenciaGlobal(rt.userId)
+
+  // Indicador "escribiendo..." para el chat activo
+  const chatActivoIdReal = rt.chatActivoId
+  const { otrosEscribiendo, notificarEscribiendo, detenerEscribiendo } =
+    useEscribiendo(rt.userId, chatActivoIdReal)
 
   // Estado para demo (fallback si no hay chats reales)
   const [demoActivo, setDemoActivo] = useState<string | null>(null)
@@ -178,6 +187,7 @@ export default function InterfazChat() {
           alCrearChat={() => {}}
           busqueda={busqueda}
           alBuscar={setBusqueda}
+          estaEnLinea={usandoReal ? (chatId: string) => estaEnLinea(chatId) : undefined}
         />
       </div>
 
@@ -195,6 +205,9 @@ export default function InterfazChat() {
             alEnviar={enviarMensaje}
             alVolver={volverALista}
             cargando={cargando}
+            enLinea={usandoReal ? estaEnLinea(chatActivoId!) : true}
+            escribiendo={usandoReal ? otrosEscribiendo.length > 0 : false}
+            alEscribir={usandoReal ? notificarEscribiendo : undefined}
           />
         ) : (
           <div className="hidden h-full md:flex flex-col items-center justify-center gap-4 text-center">

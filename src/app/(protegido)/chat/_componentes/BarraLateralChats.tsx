@@ -26,6 +26,8 @@ interface PropsBarraLateral {
   alCrearChat: () => void
   busqueda: string
   alBuscar: (q: string) => void
+  /** Función que verifica si un chatId tiene participantes en línea */
+  estaEnLinea?: (chatId: string) => boolean
 }
 
 export default function BarraLateralChats({
@@ -35,6 +37,7 @@ export default function BarraLateralChats({
   alCrearChat,
   busqueda,
   alBuscar,
+  estaEnLinea,
 }: PropsBarraLateral) {
   const chatsFiltrados = chats.filter((c) => {
     if (!busqueda.trim()) return true
@@ -99,13 +102,21 @@ export default function BarraLateralChats({
                       : 'hover:bg-surface-elevated border-l-2 border-l-transparent'
                   }`}
                 >
-                  {/* Avatar */}
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                    chatActivoId === chat.id
-                      ? 'bg-accent text-accent-foreground'
-                      : 'bg-surface-elevated text-foreground-secondary'
-                  }`}>
-                    {chat.avatarInicial}
+                  {/* Avatar con indicador de presencia */}
+                  <div className="relative">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      chatActivoId === chat.id
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-surface-elevated text-foreground-secondary'
+                    }`}>
+                      {chat.avatarInicial}
+                    </div>
+                    {/* Punto verde de presencia */}
+                    {estaEnLinea?.(chat.id) && (
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-surface bg-success">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/80" />
+                      </span>
+                    )}
                   </div>
 
                   {/* Info */}

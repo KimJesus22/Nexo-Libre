@@ -26,6 +26,12 @@ interface PropsVentanaChat {
   alEnviar: (contenido: string) => void
   alVolver: () => void
   cargando: boolean
+  /** Si el contacto está en línea (Presence) */
+  enLinea?: boolean
+  /** Si alguien está escribiendo en este chat */
+  escribiendo?: boolean
+  /** Callback para notificar que estoy escribiendo */
+  alEscribir?: () => void
 }
 
 export default function VentanaChat({
@@ -35,6 +41,9 @@ export default function VentanaChat({
   alEnviar,
   alVolver,
   cargando,
+  enLinea,
+  escribiendo,
+  alEscribir,
 }: PropsVentanaChat) {
   const [texto, setTexto] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -65,11 +74,13 @@ export default function VentanaChat({
     }
   }, [mensajes])
 
-  // Auto-resize del textarea
+  // Auto-resize del textarea + notificar "escribiendo..."
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setTexto(e.target.value)
     e.target.style.height = 'auto'
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
+    // Notificar al Presence que estoy escribiendo
+    if (e.target.value.trim()) alEscribir?.()
   }
 
   function enviar() {
@@ -121,7 +132,20 @@ export default function VentanaChat({
           <h3 className="truncate text-sm font-semibold text-foreground">
             {chatNombre ?? 'Chat directo'}
           </h3>
-          <p className="text-[11px] text-success">En línea</p>
+          {escribiendo ? (
+            <p className="flex items-center gap-1 text-[11px] text-accent">
+              <span>escribiendo</span>
+              <span className="flex gap-0.5">
+                <span className="h-1 w-1 animate-bounce rounded-full bg-accent [animation-delay:0ms]" />
+                <span className="h-1 w-1 animate-bounce rounded-full bg-accent [animation-delay:150ms]" />
+                <span className="h-1 w-1 animate-bounce rounded-full bg-accent [animation-delay:300ms]" />
+              </span>
+            </p>
+          ) : enLinea ? (
+            <p className="text-[11px] text-success">En línea</p>
+          ) : (
+            <p className="text-[11px] text-muted">Desconectado</p>
+          )}
         </div>
 
         {/* Menú */}

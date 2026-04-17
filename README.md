@@ -126,6 +126,15 @@ Módulo en `src/lib/crypto/e2ee.ts`. Supabase **nunca ve texto plano** — solo 
 - **Almacenamiento de claves**: protegidas en localStorage con PBKDF2 (600k iteraciones SHA-256 + sal)
 - **Integración**: el hook cifra antes de `INSERT` y descifra al cargar y al recibir via Realtime
 
+### Presencia en tiempo real (Presence)
+
+Hook en `src/app/(protegido)/chat/_componentes/usePresencia.ts`:
+
+- **Online/Offline**: canal `presencia-global` con `userId` como key, punto verde con animación `pulse` en el avatar de la sidebar
+- **Escribiendo...**: canal `escribiendo-{chatId}` con `track({ escribiendo: true })`, auto-reset a `false` tras 2s sin teclear
+- **Header dinámico**: muestra "escribiendo" con dots animados (`bounce` con delay escalonado), "En línea" en verde, o "Desconectado" en gris
+- **Cleanup**: `untrack()` + `removeChannel()` al cambiar de chat o desmontar
+
 ### Buscador seguro de usuarios
 
 Componente en `src/components/ui/BuscadorUsuarios/BuscadorUsuarios.tsx`:
