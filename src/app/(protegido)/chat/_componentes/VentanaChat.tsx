@@ -40,10 +40,28 @@ export default function VentanaChat({
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Auto-scroll al último mensaje
+  // Auto-scroll inteligente al recibir nuevos mensajes.
+  // Solo scrollea si el usuario está cerca del fondo (150px de tolerancia),
+  // para no interrumpir cuando está leyendo mensajes antiguos.
+  const prevMensajesLen = useRef(mensajes.length)
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    const el = scrollRef.current
+    if (!el) return
+
+    const nuevosMensajes = mensajes.length > prevMensajesLen.current
+    prevMensajesLen.current = mensajes.length
+
+    if (!nuevosMensajes) {
+      // Primer render o cambio de chat → scroll directo al fondo
+      el.scrollTop = el.scrollHeight
+      return
+    }
+
+    // Nuevo mensaje: solo scroll si estamos cerca del fondo
+    const distanciaAlFondo = el.scrollHeight - el.scrollTop - el.clientHeight
+    if (distanciaAlFondo < 150) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
     }
   }, [mensajes])
 

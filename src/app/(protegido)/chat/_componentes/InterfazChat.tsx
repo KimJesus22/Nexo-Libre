@@ -5,6 +5,14 @@
  *
  * Orquestador principal: sidebar + ventana de chat.
  *
+ * Conecta con Supabase via `useChatRealtime`:
+ * - Carga chats y mensajes desde la base de datos
+ * - Recibe mensajes en tiempo real via Realtime
+ * - Envía mensajes con optimistic updates
+ *
+ * Mantiene datos demo como fallback cuando no hay sesión activa
+ * o no hay chats en la base de datos.
+ *
  * Responsividad:
  * - Desktop (md+): sidebar fija a la izquierda, chat a la derecha
  * - Mobile (<md): muestra uno u otro con transición
@@ -13,11 +21,12 @@
 import { useState, useCallback } from 'react'
 import BarraLateralChats, { type ChatResumen } from './BarraLateralChats'
 import VentanaChat, { type Mensaje } from './VentanaChat'
+import { useChatRealtime } from './useChatRealtime'
 
-/* ── Datos demo para la interfaz ──────────────────────────────────────────── */
+/* ── Datos demo (fallback sin conexión) ───────────────────────────────────── */
 const CHATS_DEMO: ChatResumen[] = [
   {
-    id: '1',
+    id: 'demo-1',
     nombre: 'Alejandro García',
     esGrupo: false,
     ultimoMensaje: '¿Pudiste revisar el documento?',
@@ -26,7 +35,7 @@ const CHATS_DEMO: ChatResumen[] = [
     avatarInicial: 'AG',
   },
   {
-    id: '2',
+    id: 'demo-2',
     nombre: 'Equipo Desarrollo',
     esGrupo: true,
     ultimoMensaje: 'Deploy exitoso en producción 🚀',
@@ -35,7 +44,7 @@ const CHATS_DEMO: ChatResumen[] = [
     avatarInicial: 'ED',
   },
   {
-    id: '3',
+    id: 'demo-3',
     nombre: 'María López',
     esGrupo: false,
     ultimoMensaje: 'Gracias por la información',
@@ -44,7 +53,7 @@ const CHATS_DEMO: ChatResumen[] = [
     avatarInicial: 'ML',
   },
   {
-    id: '4',
+    id: 'demo-4',
     nombre: 'Seguridad NexoLibre',
     esGrupo: true,
     ultimoMensaje: 'Auditoría de RLS completada',
@@ -53,7 +62,7 @@ const CHATS_DEMO: ChatResumen[] = [
     avatarInicial: 'SN',
   },
   {
-    id: '5',
+    id: 'demo-5',
     nombre: 'Carlos Mendoza',
     esGrupo: false,
     ultimoMensaje: '¿Tienes disponibilidad mañana?',
@@ -64,19 +73,19 @@ const CHATS_DEMO: ChatResumen[] = [
 ]
 
 const MENSAJES_DEMO: Record<string, Mensaje[]> = {
-  '1': [
+  'demo-1': [
     { id: 'm1', autorId: 'otro', autorNombre: 'Alejandro García', contenido: 'Hola, ¿cómo va el proyecto?', creadoEn: '11:20', esMio: false },
     { id: 'm2', autorId: 'yo', autorNombre: 'Tú', contenido: 'Todo en orden, acabo de terminar la integración del chat con Realtime', creadoEn: '11:25', esMio: true },
     { id: 'm3', autorId: 'yo', autorNombre: 'Tú', contenido: 'Las políticas RLS están aplicadas y verificadas', creadoEn: '11:26', esMio: true },
     { id: 'm4', autorId: 'otro', autorNombre: 'Alejandro García', contenido: '¡Excelente! ¿Pudiste revisar el documento?', creadoEn: '11:32', esMio: false },
   ],
-  '2': [
+  'demo-2': [
     { id: 'm5', autorId: 'otro1', autorNombre: 'Ana Torres', contenido: 'El pipeline de CI/CD está verde ✅', creadoEn: '09:45', esMio: false },
     { id: 'm6', autorId: 'otro2', autorNombre: 'Pedro Ruiz', contenido: 'Confirmado. Las pruebas E2E pasaron sin errores', creadoEn: '09:50', esMio: false },
     { id: 'm7', autorId: 'yo', autorNombre: 'Tú', contenido: 'Perfecto, voy a hacer el deploy ahora', creadoEn: '10:10', esMio: true },
     { id: 'm8', autorId: 'yo', autorNombre: 'Tú', contenido: 'Deploy exitoso en producción 🚀', creadoEn: '10:15', esMio: true },
   ],
-  '4': [
+  'demo-4': [
     { id: 'm9', autorId: 'otro', autorNombre: 'Auditor', contenido: 'Iniciando auditoría de políticas RLS en todas las tablas', creadoEn: 'Lun 09:00', esMio: false },
     { id: 'm10', autorId: 'otro', autorNombre: 'Auditor', contenido: 'Se verificó que FORCE RLS está habilitado en: perfiles, chats, participantes_chat, mensajes', creadoEn: 'Lun 11:30', esMio: false },
     { id: 'm11', autorId: 'yo', autorNombre: 'Tú', contenido: '¿Encontraron alguna vulnerabilidad?', creadoEn: 'Lun 12:00', esMio: true },
@@ -86,48 +95,84 @@ const MENSAJES_DEMO: Record<string, Mensaje[]> = {
 }
 
 export default function InterfazChat() {
-  const [chatActivoId, setChatActivoId] = useState<string | null>(null)
+  const rt = useChatRealtime()
   const [busqueda, setBusqueda] = useState('')
-  const [mensajesLocal, setMensajesLocal] = useState(MENSAJES_DEMO)
 
-  const chatActivo = CHATS_DEMO.find((c) => c.id === chatActivoId) ?? null
-  const mensajesActivos = chatActivoId ? (mensajesLocal[chatActivoId] ?? []) : []
+  // Estado para demo (fallback si no hay chats reales)
+  const [demoActivo, setDemoActivo] = useState<string | null>(null)
+  const [mensajesDemo, setMensajesDemo] = useState(MENSAJES_DEMO)
 
-  const seleccionarChat = useCallback((id: string) => setChatActivoId(id), [])
+  // Determinar si estamos usando datos reales o demo
+  const usandoReal = rt.userId !== null && rt.chats.length > 0
+  const chatActivoId = usandoReal ? rt.chatActivoId : demoActivo
+  const chatsVisibles = usandoReal ? rt.chats : CHATS_DEMO
+  const mensajesVisibles = usandoReal
+    ? rt.mensajes
+    : (demoActivo ? (mensajesDemo[demoActivo] ?? []) : [])
+  const cargando = usandoReal ? rt.cargandoMensajes : false
 
-  const volverALista = useCallback(() => setChatActivoId(null), [])
+  // Encontrar chat activo
+  const chatActivo = chatsVisibles.find((c) => c.id === chatActivoId) ?? null
+
+  const seleccionarChat = useCallback(
+    (id: string) => {
+      if (usandoReal) {
+        rt.seleccionarChat(id)
+      } else {
+        setDemoActivo(id)
+      }
+    },
+    [usandoReal, rt]
+  )
+
+  const volverALista = useCallback(() => {
+    if (usandoReal) {
+      rt.volverALista()
+    } else {
+      setDemoActivo(null)
+    }
+  }, [usandoReal, rt])
 
   const enviarMensaje = useCallback(
     (contenido: string) => {
-      if (!chatActivoId) return
-      const nuevo: Mensaje = {
-        id: `m-${Date.now()}`,
-        autorId: 'yo',
-        autorNombre: 'Tú',
-        contenido,
-        creadoEn: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
-        esMio: true,
+      if (usandoReal) {
+        rt.enviarMensaje(contenido)
+      } else if (demoActivo) {
+        // Modo demo: agregar localmente
+        const nuevo: Mensaje = {
+          id: `m-${Date.now()}`,
+          autorId: 'yo',
+          autorNombre: 'Tú',
+          contenido,
+          creadoEn: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+          esMio: true,
+        }
+        setMensajesDemo((prev) => ({
+          ...prev,
+          [demoActivo]: [...(prev[demoActivo] ?? []), nuevo],
+        }))
       }
-      setMensajesLocal((prev) => ({
-        ...prev,
-        [chatActivoId]: [...(prev[chatActivoId] ?? []), nuevo],
-      }))
     },
-    [chatActivoId]
+    [usandoReal, rt, demoActivo]
   )
 
   return (
     <div className="flex h-[calc(100dvh-1px)] w-full overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+      {/* ── Indicador de modo ──────────────────────────────────────── */}
+      {!usandoReal && rt.userId && (
+        <div className="absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full bg-warning/15 px-3 py-1 text-[10px] font-medium text-warning">
+          Sin chats — Modo demostración
+        </div>
+      )}
+
       {/* ── Sidebar ────────────────────────────────────────────────── */}
-      {/* Desktop: siempre visible (w-80) */}
-      {/* Mobile: visible cuando NO hay chat activo */}
       <div
         className={`w-full shrink-0 md:w-80 md:block ${
           chatActivoId ? 'hidden' : 'block'
         }`}
       >
         <BarraLateralChats
-          chats={CHATS_DEMO}
+          chats={chatsVisibles}
           chatActivoId={chatActivoId}
           alSeleccionar={seleccionarChat}
           alCrearChat={() => {}}
@@ -137,8 +182,6 @@ export default function InterfazChat() {
       </div>
 
       {/* ── Ventana de chat ────────────────────────────────────────── */}
-      {/* Desktop: siempre visible (flex-1) */}
-      {/* Mobile: visible cuando HAY chat activo */}
       <div
         className={`min-w-0 flex-1 md:block ${
           chatActivoId ? 'block' : 'hidden'
@@ -148,13 +191,12 @@ export default function InterfazChat() {
           <VentanaChat
             chatNombre={chatActivo.nombre}
             chatAvatarInicial={chatActivo.avatarInicial}
-            mensajes={mensajesActivos}
+            mensajes={mensajesVisibles}
             alEnviar={enviarMensaje}
             alVolver={volverALista}
-            cargando={false}
+            cargando={cargando}
           />
         ) : (
-          /* Estado vacío (desktop) */
           <div className="hidden h-full md:flex flex-col items-center justify-center gap-4 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-surface">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
