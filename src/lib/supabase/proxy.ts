@@ -36,6 +36,7 @@ const PREFIJOS_PROTEGIDOS: readonly string[] = [
   '/panel',
   '/chat',
   '/ajustes',
+  '/live-stats',
 ] as const
 
 /**

@@ -144,6 +144,13 @@ CHECK constraints nativos de la DB que actúan como **última línea de defensa*
 
 **Auditoría de clientes Supabase**: los 3 clientes (browser, server, proxy) usan exclusivamente `PUBLISHABLE_KEY` (anon). No existe `service_role` en el código — todas las operaciones pasan por RLS.
 
+## Panel de Administración (`/live-stats`)
+
+Se ha implementado una ruta `/live-stats` exclusiva para administradores. 
+- **Validación de Admin**: La ruta compara el correo electrónico del usuario activo contra la variable de entorno `ADMIN_EMAIL` (por defecto `admin@nexolibre.com`).
+- **Terminal Cibernética**: Muestra un contador gigante de usuarios activos empleando `Supabase Realtime Presence` sobre el canal `presencia-global`. Emite logs de conexión simulados y cuenta con animaciones CRT con Tailwind CSS.
+
+
 ## Invitaciones seguras (`005_invitaciones.sql`)
 
 Sistema de invitaciones de un solo uso con token criptográfico:
