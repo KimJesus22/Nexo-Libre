@@ -95,6 +95,27 @@ auth.users ─┬─ participantes_chat ─── chats
 - **Trigger**: actualiza `chats.actualizado_en` al enviar mensaje (para ordenar por último mensaje)
 - **Permisos por columna**: `grant update (contenido, editado)` en mensajes, `grant update (nombre)` en chats
 
+### Interfaz de chat
+
+Ruta protegida `/chat` con layout split-view responsive:
+
+- **Desktop (md+)**: sidebar fija 320px + ventana de chat `flex-1` side-by-side
+- **Mobile (<md)**: alterna entre lista y ventana con botón "volver"
+- **Burbujas**: mensajes propios en esmeralda (`accent`), ajenos en `surface-elevated`, agrupados por autor
+- **Textarea**: auto-resize hasta 120px, `Enter` envía, `Shift+Enter` salto de línea
+- **Datos demo**: si no hay chats en la DB, muestra conversaciones de ejemplo
+
+### Cliente Realtime (`useChatRealtime`)
+
+Hook que conecta la UI con Supabase en `src/app/(protegido)/chat/_componentes/useChatRealtime.ts`:
+
+- **Suscripción INSERT**: `supabase.channel().on('postgres_changes', { event: 'INSERT', table: 'mensajes', filter: 'chat_id=eq.X' })`
+- **Optimistic updates**: el mensaje aparece al instante; si el INSERT falla, se hace rollback
+- **Deduplicación**: evita duplicados entre el update optimista y el evento Realtime
+- **Auto-scroll inteligente**: solo scrollea si el usuario está dentro de 150px del fondo (`behavior: 'smooth'`)
+- **Cache de nombres**: resuelve `autor_id → nombre` una vez y cachea en `useRef`
+- **Cleanup**: `supabase.removeChannel()` al cambiar de chat o desmontar
+
 ## Identificadores públicos (`IdPublico`)
 
 Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:
