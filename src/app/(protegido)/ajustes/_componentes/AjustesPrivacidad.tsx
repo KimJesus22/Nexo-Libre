@@ -16,6 +16,7 @@ import {
   purgarDatosLocales,
   type PreferenciasPrivacidad,
 } from '@/lib/privacidad'
+import PanelInvitaciones from '../../_componentes/PanelInvitaciones'
 
 /* ── Toggle reutilizable ──────────────────────────────────────────────────── */
 
@@ -194,6 +195,9 @@ export default function AjustesPrivacidad() {
           />
         </div>
       </section>
+
+      {/* ── Panel de Invitaciones Seguras ──────────────────────────── */}
+      <PanelInvitaciones />
 
       {/* ── Purga manual ───────────────────────────────────────────── */}
       <section className="rounded-xl border border-destructive/30 bg-surface p-5">

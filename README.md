@@ -167,6 +167,15 @@ Los usuarios pueden optar por enviar mensajes con tiempo de expiración.
 - **Limpieza Física**: Un cron job de Postgres (`pg_cron`) programado para correr cada minuto ejecuta la consulta `DELETE FROM public.mensajes WHERE expira_en <= now()`. Esto garantiza la destrucción irreversible de la información en el servidor.
 - **Interfaz (UI)**: El menú desplegable dentro de la caja de chat permite seleccionar si el mensaje desaparece en "1 hora", "24 horas" o se conserva permanentemente.
 
+## Envoltorio Anti-Capturas de Pantalla (Anti-Screenshot Wrapper)
+
+Se implementó un componente `AntiScreenshotWrapper.tsx` que envuelve el texto de los mensajes en el chat para dificultar la toma de capturas de pantalla o fotografías con el teléfono móvil:
+- **Ruido SVG Inyectado**: Utiliza un filtro `<feTurbulence>` nativo de SVG combinado con la directiva CSS `mix-blend-overlay` para superponer estática estocástica sobre la tipografía de forma invisible al escáner tradicional pero altamente intrusiva en capturas fotográficas.
+- **Patrón Moiré CSS**: Implementa una cuadrícula fina repetitiva animada con `mix-blend-difference` a una opacidad del 15%. Este patrón engaña a los algoritmos de autoenfoque y añade artefactos visuales severos (Banding de Moiré) cuando se fotografía desde la pantalla.
+- **Parpadeo de Alta Frecuencia (Flicker)**: Mediante animaciones de fotograma clave (keyframes), el elemento oscila a una alta frecuencia imperceptible conscientemente para el humano, pero lo suficiente como para arruinar capturas instantáneas (que capturan fotogramas oscuros o lavados).
+- **Prevención de Copia**: Utiliza `select-none` y `pointer-events-none` para evitar el subrayado natural del texto en SO y prevenir copiado/pegado básico de forma nativa.
+
+
 ## Invitaciones seguras (`005_invitaciones.sql`)
 
 Sistema de invitaciones de un solo uso con token criptográfico:

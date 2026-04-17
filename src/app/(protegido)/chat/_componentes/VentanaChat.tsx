@@ -9,6 +9,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react'
+import AntiScreenshotWrapper from './AntiScreenshotWrapper'
 
 export interface Mensaje {
   id: string
@@ -206,7 +207,9 @@ export default function VentanaChat({
                           : 'bg-surface-elevated text-foreground rounded-bl-md'
                       }`}
                     >
-                      <p className="whitespace-pre-wrap break-words">{msg.contenido}</p>
+                      <AntiScreenshotWrapper>
+                        <p className="whitespace-pre-wrap break-words">{msg.contenido}</p>
+                      </AntiScreenshotWrapper>
                       <time className={`mt-0.5 block text-right text-[10px] ${
                         msg.esMio ? 'text-accent-foreground/60' : 'text-muted'
                       }`}>
