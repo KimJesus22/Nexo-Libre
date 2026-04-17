@@ -136,6 +136,17 @@ Componente en `src/components/ui/BuscadorUsuarios/BuscadorUsuarios.tsx`:
 - **Auto-exclusión**: el usuario actual y participantes existentes se filtran de los resultados
 - **Ayuda contextual**: mensaje de privacidad visible cuando el input está vacío
 
+## Ajustes de privacidad
+
+Ruta protegida `/ajustes` con controles de privacidad local:
+
+- **Modo Efímero**: al cerrar sesión, purga automática de claves E2EE, caches y sessionStorage
+- **Borrar al cerrar**: limpia mensajes visibles al abandonar la app (activado automáticamente por Modo Efímero)
+- **Ocultar previsualizaciones**: reemplaza contenido en sidebar por "Mensaje nuevo"
+- **Purga manual**: botón destructivo para borrar datos locales inmediatamente
+- **Toggle accesible**: `role="switch"` con `aria-checked`, animación `cubic-bezier(0.4,0,0.2,1)`
+- **Integración**: `BotonCerrarSesion` ejecuta `ejecutarPurgaSiEfimero()` client-side antes del Server Action
+
 ## Identificadores públicos (`IdPublico`)
 
 Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:

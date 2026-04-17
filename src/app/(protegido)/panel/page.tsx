@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cerrarSesion } from '@/app/(auth)/_acciones/actions'
 import Gestionar2FA from '@/app/(protegido)/_componentes/Gestionar2FA'
 import MetricasDashboard from '@/app/(protegido)/_componentes/MetricasDashboard'
+import BotonCerrarSesion from '@/app/(protegido)/_componentes/BotonCerrarSesion'
 
 export const metadata = {
   title: 'Panel',
@@ -32,14 +33,7 @@ export default async function PaginaPanel() {
               {user?.email}
             </p>
           </div>
-          <form action={cerrarSesion}>
-            <button
-              type="submit"
-              className="mt-3 rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-destructive hover:text-white hover:border-destructive sm:mt-0"
-            >
-              Cerrar sesión
-            </button>
-          </form>
+          <BotonCerrarSesion accion={cerrarSesion} />
         </header>
 
         {/* ── Dashboard: métricas ─────────────────────────────────────── */}

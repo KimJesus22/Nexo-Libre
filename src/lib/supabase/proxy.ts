@@ -30,6 +30,7 @@ const RUTAS_PUBLICAS: readonly string[] = [
 const PREFIJOS_PROTEGIDOS: readonly string[] = [
   '/panel',
   '/chat',
+  '/ajustes',
 ] as const
 
 /**
