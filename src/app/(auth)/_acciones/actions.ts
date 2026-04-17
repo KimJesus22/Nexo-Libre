@@ -62,7 +62,7 @@ export async function iniciarSesionConCorreo(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/panel')
+  redirect('/verificar-2fa')
 }
 
 /* ── Email + Contraseña: Registrarse ─────────────────────────────────────── */

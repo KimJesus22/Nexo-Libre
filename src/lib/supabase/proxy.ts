@@ -52,6 +52,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/iniciar-sesion') &&
     !request.nextUrl.pathname.startsWith('/registrarse') &&
     !request.nextUrl.pathname.startsWith('/verificar-correo') &&
+    !request.nextUrl.pathname.startsWith('/verificar-2fa') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     request.nextUrl.pathname.startsWith('/panel')
   ) {

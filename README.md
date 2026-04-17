@@ -74,6 +74,8 @@ El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfile
 - **RLS inflexible**: `ENABLE` + `FORCE`, políticas granulares por operación, INSERT y DELETE bloqueados.
 - Funciones `SECURITY DEFINER` en esquema `privado` (no expuesto por la API).
 - Restricciones `CHECK` para validar formato de nombre de usuario, URLs y longitudes.
+- Política RLS **restrictiva** para 2FA: exige `aal2` si el usuario tiene TOTP activado.
+- Migración **idempotente** (segura de ejecutar múltiples veces).
 
 ## Identificadores públicos (`IdPublico`)
 
@@ -96,6 +98,17 @@ El proyecto implementa un flujo de autenticación seguro con Supabase usando `@s
 - Manejo de sesiones automático a través del `proxy.ts`.
 - Rutas protegidas bajo el grupo `(protegido)`.
 - Server Actions para login, registro y cierre de sesión.
+
+## Autenticación en dos pasos (2FA TOTP)
+
+Integración de 2FA vía TOTP (Google Authenticator, Authy, etc.) usando la API de MFA de Supabase:
+
+- **Opt-in**: el usuario activa el 2FA desde su panel de configuración.
+- **Enrolamiento**: genera QR code SVG + secret manual, verifica con `challenge()` + `verify()`.
+- **Post-login**: si el usuario tiene 2FA, se redirige a `/verificar-2fa` para ingresar el código TOTP.
+- **RLS restrictiva**: los usuarios con 2FA activado **deben** tener `aal2` en su JWT para acceder a datos.
+
+Flujo: Login → `/verificar-2fa` → (sin 2FA → `/panel` | con 2FA → código TOTP → `/panel`)
 
 ## Supabase
 
