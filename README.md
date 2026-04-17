@@ -120,6 +120,16 @@ El panel de control (`/panel`) muestra métricas de identidad y seguridad con gr
 - **Curva suavizada**: sesiones mensuales con splines Catmull-Rom → Bézier (C¹ continua)
 - **Contadores animados**: smoothstep de Hermite `f(t) = 3t² − 2t³` para transiciones suaves
 
+## Documentos legales
+
+Modal interactivo (`ModalLegal`) para Términos y Condiciones y Aviso de Privacidad:
+
+- **Scroll obligatorio**: el botón "Aceptar" permanece bloqueado hasta que el usuario haga scroll hasta el final absoluto del documento (`scrollTop + clientHeight >= scrollHeight - 2px`).
+- **Barra de progreso**: indicador visual del porcentaje de lectura.
+- **Timestamp de aceptación**: se registra la fecha/hora exacta de aceptación de cada documento.
+- **Integrado en registro**: el formulario de crear cuenta requiere aceptar ambos documentos antes de habilitar el envío.
+- **Contenido jurídico**: 9 cláusulas de T&C (objeto, definiciones, capacidad legal, uso aceptable, propiedad intelectual, limitación de responsabilidad, legislación aplicable) y 8 secciones de Aviso de Privacidad (identidad del responsable, datos recabados, finalidades, medidas de seguridad, derechos ARCO, transferencias).
+
 ## Supabase
 
 ### Configurar credenciales
