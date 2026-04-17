@@ -23,6 +23,8 @@ import BarraLateralChats, { type ChatResumen } from './BarraLateralChats'
 import VentanaChat, { type Mensaje } from './VentanaChat'
 import { useChatRealtime } from './useChatRealtime'
 import { usePresenciaGlobal, useEscribiendo } from './usePresencia'
+import SkeletonChats from './SkeletonChats'
+import SkeletonMensajes from './SkeletonMensajes'
 
 /* ── Datos demo (fallback sin conexión) ───────────────────────────────────── */
 const CHATS_DEMO: ChatResumen[] = [
@@ -174,21 +176,25 @@ export default function InterfazChat() {
         </div>
       )}
 
-      {/* ── Sidebar ────────────────────────────────────────────────── */}
+      {/* ── Sidebar ────────────────────────────────────────────────────── */}
       <div
         className={`w-full shrink-0 md:w-80 md:block ${
           chatActivoId ? 'hidden' : 'block'
         }`}
       >
-        <BarraLateralChats
-          chats={chatsVisibles}
-          chatActivoId={chatActivoId}
-          alSeleccionar={seleccionarChat}
-          alCrearChat={() => {}}
-          busqueda={busqueda}
-          alBuscar={setBusqueda}
-          estaEnLinea={usandoReal ? (chatId: string) => estaEnLinea(chatId) : undefined}
-        />
+        {rt.cargandoChats ? (
+          <SkeletonChats />
+        ) : (
+          <BarraLateralChats
+            chats={chatsVisibles}
+            chatActivoId={chatActivoId}
+            alSeleccionar={seleccionarChat}
+            alCrearChat={() => {}}
+            busqueda={busqueda}
+            alBuscar={setBusqueda}
+            estaEnLinea={usandoReal ? (chatId: string) => estaEnLinea(chatId) : undefined}
+          />
+        )}
       </div>
 
       {/* ── Ventana de chat ────────────────────────────────────────── */}
@@ -198,17 +204,21 @@ export default function InterfazChat() {
         }`}
       >
         {chatActivo ? (
-          <VentanaChat
-            chatNombre={chatActivo.nombre}
-            chatAvatarInicial={chatActivo.avatarInicial}
-            mensajes={mensajesVisibles}
-            alEnviar={enviarMensaje}
-            alVolver={volverALista}
-            cargando={cargando}
-            enLinea={usandoReal ? estaEnLinea(chatActivoId!) : true}
-            escribiendo={usandoReal ? otrosEscribiendo.length > 0 : false}
-            alEscribir={usandoReal ? notificarEscribiendo : undefined}
-          />
+          cargando && mensajesVisibles.length === 0 ? (
+            <SkeletonMensajes />
+          ) : (
+            <VentanaChat
+              chatNombre={chatActivo.nombre}
+              chatAvatarInicial={chatActivo.avatarInicial}
+              mensajes={mensajesVisibles}
+              alEnviar={enviarMensaje}
+              alVolver={volverALista}
+              cargando={cargando}
+              enLinea={usandoReal ? estaEnLinea(chatActivoId!) : true}
+              escribiendo={usandoReal ? otrosEscribiendo.length > 0 : false}
+              alEscribir={usandoReal ? notificarEscribiendo : undefined}
+            />
+          )
         ) : (
           <div className="hidden h-full md:flex flex-col items-center justify-center gap-4 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-surface">

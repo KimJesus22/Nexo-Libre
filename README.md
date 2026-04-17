@@ -116,6 +116,15 @@ Hook que conecta la UI con Supabase en `src/app/(protegido)/chat/_componentes/us
 - **Cache de nombres**: resuelve `autor_id → nombre` una vez y cachea en `useRef`
 - **Cleanup**: `supabase.removeChannel()` al cambiar de chat o desmontar
 
+### Skeleton Loaders
+
+Componentes en `src/app/(protegido)/chat/_componentes/`:
+
+- **`SkeletonChats`**: 6 filas con avatar circular + líneas de texto shimmer, replica la estructura exacta de la sidebar
+- **`SkeletonMensajes`**: header + 8 burbujas alternadas izquierda/derecha con anchos variados + input inferior
+- **Condiciones**: sidebar muestra skeleton mientras `cargandoChats === true`; ventana muestra skeleton cuando `cargando && mensajes.length === 0`
+- **Animación**: `animate-pulse` nativo de Tailwind con capas `bg-surface-elevated` a distintas opacidades
+
 ### Cifrado end-to-end (E2EE)
 
 Módulo en `src/lib/crypto/e2ee.ts`. Supabase **nunca ve texto plano** — solo ciphertext:
