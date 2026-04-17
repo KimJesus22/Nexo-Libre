@@ -5,6 +5,15 @@
  * Cada invocación genera una instancia nueva para evitar
  * compartir estado entre peticiones concurrentes.
  *
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║ AUDITORÍA DE SEGURIDAD:                                        ║
+ * ║ • Usa PUBLISHABLE_KEY (anon) — NO service_role.                ║
+ * ║ • Todas las operaciones pasan por RLS.                         ║
+ * ║ • La sesión del usuario se refresca via cookies (@supabase/ssr)║
+ * ║ • getUser() valida el JWT server-side contra Supabase Auth.    ║
+ * ║ • NO existe ningún bypass de RLS en el código del servidor.    ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ *
  * Uso:
  *   import { createClient } from '@/lib/supabase/server'
  *   const supabase = await createClient()

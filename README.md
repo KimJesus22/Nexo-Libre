@@ -102,6 +102,25 @@ Módulo en `src/lib/validacion.ts` — toda entrada del usuario pasa por Zod **a
 
 **Anti-XSS**: regex `REGEX_HTML_PELIGROSO` rechaza etiquetas `script|iframe|object|embed|form|link|meta|base|svg`, atributos `on*=`, URIs `javascript:` y `data:text/html`.
 
+## Hardening PostgreSQL (`004_hardening_constraints.sql`)
+
+CHECK constraints nativos de la DB que actúan como **última línea de defensa** independientemente del frontend:
+
+| Tabla | Constraint | Qué rechaza |
+|-------|-----------|-------------|
+| `mensajes` | `contenido_sin_html_peligroso` | `<script>`, `<iframe>`, `<object>`, `<embed>` |
+| `mensajes` | `contenido_sin_event_handlers` | `onerror=`, `onclick=`, `onload=`, etc. |
+| `mensajes` | `contenido_sin_uri_peligrosa` | `javascript:`, `data:` URIs |
+| `perfiles` | `nombre_completo_sin_html` | HTML peligroso en nombre |
+| `perfiles` | `biografia_sin_html` / `biografia_sin_uri_peligrosa` | HTML y URIs en bio |
+| `chats` | `nombre_chat_sin_html` | HTML peligroso en nombre de grupo |
+
+**Políticas RLS restrictivas adicionales**:
+- `mensajes_insert_contenido_valido` — rechaza INSERT con contenido null/vacío/whitespace/> 5000 chars
+- `perfiles_update_campos_seguros` — solo el propietario, con username ≥ 3 chars
+
+**Auditoría de clientes Supabase**: los 3 clientes (browser, server, proxy) usan exclusivamente `PUBLISHABLE_KEY` (anon). No existe `service_role` en el código — todas las operaciones pasan por RLS.
+
 ## Perfiles de usuario
 
 El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfiles_usuario.sql`. Incluye:
