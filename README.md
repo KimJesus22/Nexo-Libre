@@ -95,9 +95,18 @@ Matemática: UUID (128 bits) → BigInt → división sucesiva ÷ 62 → 8 carac
 
 El proyecto implementa un flujo de autenticación seguro con Supabase usando `@supabase/ssr` en Next.js 16:
 - **Magic Links** y **Email + Contraseña** únicamente (sin SMS/teléfono para evitar SIM Swapping).
-- Manejo de sesiones automático a través del `proxy.ts`.
 - Rutas protegidas bajo el grupo `(protegido)`.
 - Server Actions para login, registro y cierre de sesión.
+
+### Proxy de seguridad (`proxy.ts`)
+
+El proxy (middleware de Next.js 16) valida sesiones server-side **antes** de renderizar cualquier ruta:
+
+- **`getUser()` obligatorio** — valida el JWT contra el servidor de Supabase Auth (no `getSession()` que solo decodifica localmente).
+- **Purga de cookies** — si el token es inválido/manipulado, elimina todas las cookies `sb-*` para evitar loops de redirección.
+- **Whitelist explícita** — solo las rutas públicas listadas son accesibles sin sesión.
+- **Redirección de usuarios autenticados** — login/registro redirigen a `/verificar-2fa` si ya hay sesión.
+- **Headers de seguridad** — `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`.
 
 ## Autenticación en dos pasos (2FA TOTP)
 
