@@ -116,6 +116,16 @@ Hook que conecta la UI con Supabase en `src/app/(protegido)/chat/_componentes/us
 - **Cache de nombres**: resuelve `autor_id → nombre` una vez y cachea en `useRef`
 - **Cleanup**: `supabase.removeChannel()` al cambiar de chat o desmontar
 
+### Cifrado end-to-end (E2EE)
+
+Módulo en `src/lib/crypto/e2ee.ts`. Supabase **nunca ve texto plano** — solo ciphertext:
+
+- **Algoritmo**: AES-256-GCM (cifrado autenticado: confidencialidad + integridad)
+- **IV**: 12 bytes aleatorios por mensaje (NIST SP 800-38D), nunca reutilizado
+- **Payload**: `e2ee:base64url(iv).base64url(ciphertext)` — prefijo permite compatibilidad con mensajes legacy
+- **Almacenamiento de claves**: protegidas en localStorage con PBKDF2 (600k iteraciones SHA-256 + sal)
+- **Integración**: el hook cifra antes de `INSERT` y descifra al cargar y al recibir via Realtime
+
 ## Identificadores públicos (`IdPublico`)
 
 Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:

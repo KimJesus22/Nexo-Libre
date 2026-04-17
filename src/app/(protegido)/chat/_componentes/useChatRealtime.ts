@@ -11,6 +11,10 @@
  *    nuevos mensajes sin recargar la página
  * 4. Envía mensajes via INSERT directo (RLS valida pertenencia)
  * 5. Auto-cleanup de suscripciones al desmontar o cambiar de chat
+ * 6. Cifrado E2EE: AES-256-GCM via Web Crypto API
+ *    - Cifra ANTES de enviar a Supabase
+ *    - Descifra al cargar y al recibir via Realtime
+ *    - Supabase NUNCA ve texto plano
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
@@ -18,6 +22,12 @@ import { createClient } from '@/lib/supabase/client'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import type { ChatResumen } from './BarraLateralChats'
 import type { Mensaje } from './VentanaChat'
+import {
+  cifrarMensaje,
+  descifrarMensaje,
+  obtenerOCrearClaveChat,
+  esMensajeCifrado,
+} from '@/lib/crypto/e2ee'
 
 /* ── Tipos de base de datos ───────────────────────────────────────────────── */
 interface MensajeDB {
@@ -96,6 +106,9 @@ export function useChatRealtime() {
 
   // Cache de nombres de usuario por ID
   const nombresCache = useRef<Record<string, string>>({})
+
+  // Clave E2EE del chat activo (AES-256-GCM)
+  const claveE2EE = useRef<CryptoKey | null>(null)
 
   /* ── 1. Obtener usuario actual ──────────────────────────────────────── */
   useEffect(() => {
@@ -214,14 +227,31 @@ export function useChatRealtime() {
       })
     }
 
-    const mensajesMapeados: Mensaje[] = mensajesDB.map((m: MensajeDB) => ({
-      id: m.id,
-      autorId: m.autor_id,
-      autorNombre: nombresCache.current[m.autor_id] ?? 'Anónimo',
-      contenido: m.contenido,
-      creadoEn: formatearHora(m.creado_en),
-      esMio: m.autor_id === userId,
-    }))
+    // Obtener o crear clave E2EE para este chat
+    const clave = await obtenerOCrearClaveChat(chatId, userId)
+    claveE2EE.current = clave
+
+    // Descifrar mensajes (compatible con mensajes legacy sin cifrar)
+    const mensajesMapeados: Mensaje[] = await Promise.all(
+      mensajesDB.map(async (m: MensajeDB) => {
+        let contenidoDescifrado = m.contenido
+        if (esMensajeCifrado(m.contenido)) {
+          try {
+            contenidoDescifrado = await descifrarMensaje(m.contenido, clave)
+          } catch {
+            contenidoDescifrado = '🔒 No se pudo descifrar este mensaje'
+          }
+        }
+        return {
+          id: m.id,
+          autorId: m.autor_id,
+          autorNombre: nombresCache.current[m.autor_id] ?? 'Anónimo',
+          contenido: contenidoDescifrado,
+          creadoEn: formatearHora(m.creado_en),
+          esMio: m.autor_id === userId,
+        }
+      })
+    )
 
     setMensajes(mensajesMapeados)
     setCargandoMensajes(false)
@@ -245,17 +275,30 @@ export function useChatRealtime() {
           table: 'mensajes',
           filter: `chat_id=eq.${chatActivoId}`,
         },
-        (payload) => {
+        async (payload) => {
           const nuevo = payload.new as MensajeDB
 
           // Resolver nombre del autor (puede ser yo mismo via otro dispositivo)
           const autorNombre = nombresCache.current[nuevo.autor_id] ?? 'Anónimo'
 
+          // Descifrar contenido E2EE
+          let contenidoDescifrado = nuevo.contenido
+          if (esMensajeCifrado(nuevo.contenido) && claveE2EE.current) {
+            try {
+              contenidoDescifrado = await descifrarMensaje(
+                nuevo.contenido,
+                claveE2EE.current
+              )
+            } catch {
+              contenidoDescifrado = '🔒 No se pudo descifrar este mensaje'
+            }
+          }
+
           const mensajeNuevo: Mensaje = {
             id: nuevo.id,
             autorId: nuevo.autor_id,
             autorNombre,
-            contenido: nuevo.contenido,
+            contenido: contenidoDescifrado,
             creadoEn: formatearHora(nuevo.creado_en),
             esMio: nuevo.autor_id === userId,
           }
@@ -323,13 +366,24 @@ export function useChatRealtime() {
         )
       )
 
+      // Cifrar contenido con E2EE antes de enviar a Supabase
+      let contenidoCifrado = contenido
+      if (claveE2EE.current) {
+        try {
+          contenidoCifrado = await cifrarMensaje(contenido, claveE2EE.current)
+        } catch (e) {
+          console.error('E2EE: Error al cifrar, enviando sin cifrar:', e)
+        }
+      }
+
       // INSERT real (RLS valida: auth.uid() = autor_id AND participante)
+      // Supabase recibe el ciphertext, NUNCA el texto plano
       const { data, error } = await supabase
         .from('mensajes')
         .insert({
           chat_id: chatActivoId,
           autor_id: userId,
-          contenido,
+          contenido: contenidoCifrado,
         })
         .select('id')
         .single()
@@ -354,12 +408,14 @@ export function useChatRealtime() {
   /* ── 6. Seleccionar chat ────────────────────────────────────────────── */
   const seleccionarChat = useCallback((id: string) => {
     setChatActivoId(id)
-    setMensajes([]) // Limpiar mensajes previos
+    setMensajes([])
+    claveE2EE.current = null // Reset clave E2EE del chat anterior
   }, [])
 
   const volverALista = useCallback(() => {
     setChatActivoId(null)
     setMensajes([])
+    claveE2EE.current = null
   }, [])
 
   return {
