@@ -146,9 +146,9 @@ export default function InterfazChat() {
   }, [usandoReal, rt])
 
   const enviarMensaje = useCallback(
-    (contenido: string) => {
+    (contenido: string, expiraEnHoras: number | null = null) => {
       if (usandoReal) {
-        rt.enviarMensaje(contenido)
+        rt.enviarMensaje(contenido, expiraEnHoras)
       } else if (demoActivo) {
         // Modo demo: agregar localmente
         const nuevo: Mensaje = {

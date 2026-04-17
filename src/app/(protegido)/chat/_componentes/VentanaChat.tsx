@@ -23,7 +23,7 @@ interface PropsVentanaChat {
   chatNombre: string | null
   chatAvatarInicial: string
   mensajes: Mensaje[]
-  alEnviar: (contenido: string) => void
+  alEnviar: (contenido: string, expiraEnHoras?: number | null) => void
   alVolver: () => void
   cargando: boolean
   /** Si el contacto está en línea (Presence) */
@@ -46,6 +46,7 @@ export default function VentanaChat({
   alEscribir,
 }: PropsVentanaChat) {
   const [texto, setTexto] = useState('')
+  const [expiracion, setExpiracion] = useState<number | null>(null) // null = Nunca
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -86,7 +87,7 @@ export default function VentanaChat({
   function enviar() {
     const contenido = texto.trim()
     if (!contenido) return
-    alEnviar(contenido)
+    alEnviar(contenido, expiracion)
     setTexto('')
     if (inputRef.current) {
       inputRef.current.style.height = 'auto'
@@ -233,6 +234,18 @@ export default function VentanaChat({
               <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
             </svg>
           </button>
+
+          {/* Autodestrucción Select */}
+          <select
+            value={expiracion === null ? '' : expiracion.toString()}
+            onChange={(e) => setExpiracion(e.target.value ? Number(e.target.value) : null)}
+            className="h-10 rounded-xl border border-border bg-surface px-2 text-xs text-muted outline-none transition-colors hover:text-foreground focus:border-accent"
+            title="Autodestrucción"
+          >
+            <option value="">Permanente</option>
+            <option value="1">1 hora</option>
+            <option value="24">24 horas</option>
+          </select>
 
           {/* Textarea autoexpandible */}
           <textarea

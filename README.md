@@ -160,6 +160,13 @@ La interfaz de chat cuenta con un **Botón de Pánico** para situaciones donde e
 
 
 
+## Mensajes Efímeros y Autodestrucción
+
+Los usuarios pueden optar por enviar mensajes con tiempo de expiración.
+- **Base de Datos**: Se utiliza la columna `expira_en` (tipo `timestamptz`) en la tabla `mensajes`.
+- **Limpieza Física**: Un cron job de Postgres (`pg_cron`) programado para correr cada minuto ejecuta la consulta `DELETE FROM public.mensajes WHERE expira_en <= now()`. Esto garantiza la destrucción irreversible de la información en el servidor.
+- **Interfaz (UI)**: El menú desplegable dentro de la caja de chat permite seleccionar si el mensaje desaparece en "1 hora", "24 horas" o se conserva permanentemente.
+
 ## Invitaciones seguras (`005_invitaciones.sql`)
 
 Sistema de invitaciones de un solo uso con token criptográfico:

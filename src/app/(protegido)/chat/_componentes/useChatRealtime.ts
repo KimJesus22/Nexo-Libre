@@ -338,7 +338,7 @@ export function useChatRealtime() {
 
   /* ── 5. Enviar mensaje ──────────────────────────────────────────────── */
   const enviarMensaje = useCallback(
-    async (contenido: string) => {
+    async (contenido: string, expiraEnHoras: number | null = null) => {
       if (!chatActivoId || !userId) return
 
       // Validar contenido con Zod ANTES de cualquier operación
@@ -385,6 +385,14 @@ export function useChatRealtime() {
         }
       }
 
+      // Calcular fecha de expiración si corresponde
+      let expira_en = null
+      if (expiraEnHoras) {
+        const fecha = new Date()
+        fecha.setHours(fecha.getHours() + expiraEnHoras)
+        expira_en = fecha.toISOString()
+      }
+
       // INSERT real (RLS valida: auth.uid() = autor_id AND participante)
       // Supabase recibe el ciphertext, NUNCA el texto plano
       const { data, error } = await supabase
@@ -393,6 +401,7 @@ export function useChatRealtime() {
           chat_id: chatActivoId,
           autor_id: userId,
           contenido: contenidoCifrado,
+          expira_en,
         })
         .select('id')
         .single()
