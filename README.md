@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NexoLibre
 
-## Getting Started
+Plataforma modular construida con **Next.js 16**, **Tailwind CSS v4** y **Supabase**.
 
-First, run the development server:
+## Requisitos previos
+
+- **Node.js** ≥ 18
+- **pnpm** ≥ 10 (gestor de paquetes exclusivo)
+
+## Inicio rápido
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# 1. Clonar el repositorio
+git clone <tu-repositorio> NexoLibre
+cd NexoLibre
+
+# 2. Instalar dependencias
+pnpm install
+
+# 3. Configurar variables de entorno
+#    Copia .env.example a .env.local y rellena las credenciales de Supabase
+cp .env.example .env.local
+
+# 4. Arrancar el servidor de desarrollo (con Turbopack)
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La aplicación estará disponible en `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts disponibles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Comando            | Descripción                              |
+| ------------------ | ---------------------------------------- |
+| `pnpm dev`         | Servidor de desarrollo con Turbopack     |
+| `pnpm build`       | Compilación optimizada para producción   |
+| `pnpm start`       | Servidor de producción                   |
+| `pnpm lint`        | Análisis estático con ESLint             |
+| `pnpm typecheck`   | Verificación de tipos TypeScript         |
 
-## Learn More
+## Estructura del proyecto
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    # App Router de Next.js
+│   ├── globals.css         # Sistema de diseño + Tailwind v4
+│   ├── layout.tsx          # Layout raíz (idioma: español)
+│   ├── page.tsx            # Página principal
+│   ├── loading.tsx         # Esqueleto de carga
+│   ├── error.tsx           # Página de error
+│   └── not-found.tsx       # Página 404
+├── components/
+│   ├── ui/                 # Componentes reutilizables (botones, inputs...)
+│   └── layout/             # Componentes estructurales (cabecera, pie...)
+├── hooks/                  # Hooks personalizados de React
+├── lib/
+│   ├── supabase/
+│   │   ├── client.ts       # Cliente público (navegador)
+│   │   ├── server.ts       # Cliente privilegiado (servidor)
+│   │   ├── proxy.ts        # Manejo de la sesión para el proxy
+│   │   ├── types.ts        # Tipos generados de la base de datos
+│   │   └── index.ts        # Barrel export
+│   ├── constants.ts        # Constantes globales
+│   └── utils.ts            # Funciones auxiliares
+├── types/                  # Tipos TypeScript compartidos
+└── proxy.ts                # Proxy de Next.js 16 (intercepta peticiones)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Autenticación
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+El proyecto implementa un flujo de autenticación seguro con Supabase usando `@supabase/ssr` en Next.js 16:
+- **Magic Links** y **Email + Contraseña** únicamente (sin SMS/teléfono para evitar SIM Swapping).
+- Manejo de sesiones automático a través del `proxy.ts`.
+- Rutas protegidas bajo el grupo `(protegido)`.
+- Server Actions para login, registro y cierre de sesión.
 
-## Deploy on Vercel
+## Supabase
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Configurar credenciales
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Edita `.env.local` con las credenciales de tu proyecto Supabase:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable__tu-clave-publica
+```
+
+### Generar tipos de la base de datos
+
+```bash
+pnpm supabase gen types typescript --project-id <tu-project-id> > src/lib/supabase/types.ts
+```
+
+### Uso en la aplicación
+
+```tsx
+// En un Client Component
+import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
+
+// En un Server Component / Server Action / Route Handler
+import { createClient } from '@/lib/supabase/server'
+const supabase = await createClient()
+```
+
+## Tecnologías
+
+- **Next.js 16** — App Router, Server Components, Turbopack
+- **React 19** — Server Components, Suspense, use()
+- **Tailwind CSS v4** — PostCSS, @theme inline, modo oscuro automático
+- **Supabase** — Base de datos, autenticación, almacenamiento
+- **TypeScript 5** — Tipado estricto
+- **ESLint 9** — Flat config con reglas de Next.js
+
+## Licencia
+
+Pendiente de definir.
