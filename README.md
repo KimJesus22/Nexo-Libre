@@ -170,9 +170,13 @@ const supabase = await createClient()
 
 ## Tecnologías
 
-- **Next.js 16** — App Router, Server Components, Turbopack
+- **Next.js 16** — App Router, Server Components, Turbopack, Proxy (middleware)
 - **React 19** — Server Components, Suspense, use()
 - **Tailwind CSS v4** — PostCSS, @theme inline, modo oscuro forzado
+- **Supabase** — Base de datos PostgreSQL, Auth (MFA/TOTP), RLS
+- **TypeScript 5** — Tipado estricto, target ES2020
+- **ESLint 9** — Flat config con reglas de Next.js
+- **pnpm 10** — Gestor de paquetes (obligatorio)
 
 ## Diseño visual
 
@@ -184,9 +188,100 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Hero**: título tipográfico contundente, badge animado, indicadores de confianza (0 datos biométricos, 0 números telefónicos, 100% código abierto)
 - **Características**: 6 tarjetas con hover glow esmeralda y micro-animaciones
 - **Animaciones**: `fade-in-up` secuencial, `pulse-glow`, `gradient-shift`
-- **Supabase** — Base de datos, autenticación, almacenamiento
-- **TypeScript 5** — Tipado estricto
-- **ESLint 9** — Flat config con reglas de Next.js
+
+## Despliegue
+
+### Requisitos previos
+
+- **Node.js** ≥ 18.0.0
+- **pnpm** 10.x (obligatorio — no usar npm ni yarn)
+- Proyecto en Supabase con Email Auth habilitado
+
+### Variables de entorno
+
+| Variable | Tipo | Descripción |
+|----------|------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Build + Runtime | URL de tu proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Build + Runtime | Clave pública (publishable key) |
+| `NEXT_PUBLIC_SITE_URL` | Runtime | URL de tu dominio en producción |
+
+> **⚠️ Importante**: las variables `NEXT_PUBLIC_*` se incrustan **estáticamente en el bundle del cliente** durante `pnpm build`. Deben estar disponibles en build time, no solo en runtime. Son seguras de exponer porque solo permiten operaciones que RLS autoriza.
+
+### Opción 1: Vercel (recomendado)
+
+1. Importa el repositorio en [vercel.com/new](https://vercel.com/new)
+2. En **Settings → General**:
+   - Framework Preset: **Next.js**
+   - Build Command: **`pnpm build`**
+   - Install Command: **`pnpm install --frozen-lockfile`**
+3. En **Settings → Environment Variables**, agrega:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL = https://xxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = sb_publishable__xxx
+   NEXT_PUBLIC_SITE_URL = https://tu-dominio.vercel.app
+   ```
+4. En el dashboard de Supabase → **Authentication → URL Configuration**:
+   - Site URL: `https://tu-dominio.vercel.app`
+   - Redirect URLs: `https://tu-dominio.vercel.app/auth/callback`
+
+### Opción 2: Docker
+
+El proyecto incluye un `Dockerfile` multi-stage optimizado:
+
+```bash
+# Build de la imagen (las NEXT_PUBLIC_* van como build-args)
+docker build \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable__xxx \
+  --build-arg NEXT_PUBLIC_SITE_URL=https://tu-dominio.com \
+  -t nexolibre .
+
+# Ejecutar el contenedor
+docker run -p 3000:3000 \
+  -e NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co \
+  -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable__xxx \
+  -e NEXT_PUBLIC_SITE_URL=https://tu-dominio.com \
+  nexolibre
+```
+
+El Dockerfile:
+- Usa `pnpm install --frozen-lockfile` (reproducibilidad exacta)
+- Build multi-stage de 4 etapas (base → deps → builder → runner)
+- Imagen final `node:20-alpine` (~150MB)
+- Usuario no-root (`nextjs:nodejs`)
+- Telemetría de Next.js desactivada
+- Output `standalone` para mínimo tamaño
+
+### Opción 3: VPS / Self-hosting
+
+```bash
+# 1. Clonar e instalar
+git clone https://github.com/KimJesus22/Nexo-Libre.git
+cd Nexo-Libre
+pnpm install --frozen-lockfile
+
+# 2. Configurar variables de entorno
+cp .env.example .env.local
+# Editar .env.local con tus credenciales reales
+
+# 3. Build de producción (con pnpm obligatoriamente)
+pnpm build
+
+# 4. Ejecutar
+pnpm start
+# La app estará en http://localhost:3000
+```
+
+Para servir con un reverse proxy (nginx/Caddy), apunta al puerto 3000.
+
+### Configurar Supabase para producción
+
+1. **Dashboard → Authentication → Providers** → Habilitar Email
+2. **Dashboard → Authentication → URL Configuration**:
+   - Site URL: tu dominio de producción
+   - Redirect URLs: `https://tu-dominio.com/auth/callback`
+3. **Dashboard → SQL Editor** → Ejecutar `supabase/migrations/001_perfiles_usuario.sql`
+4. **Dashboard → Authentication → MFA** → Verificar que TOTP esté habilitado
 
 ## Licencia
 

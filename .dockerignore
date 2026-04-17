@@ -1,0 +1,14 @@
+# Ignorar archivos innecesarios para el contexto de Docker
+.git
+.gitignore
+.next
+.env*
+!.env.example
+node_modules
+*.md
+.agents
+.claude
+.vercel
+coverage
+.DS_Store
+*.tsbuildinfo
