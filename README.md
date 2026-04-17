@@ -130,7 +130,18 @@ const supabase = await createClient()
 
 - **Next.js 16** — App Router, Server Components, Turbopack
 - **React 19** — Server Components, Suspense, use()
-- **Tailwind CSS v4** — PostCSS, @theme inline, modo oscuro automático
+- **Tailwind CSS v4** — PostCSS, @theme inline, modo oscuro forzado
+
+## Diseño visual
+
+Landing page en **modo oscuro** con paleta de alto contraste institucional:
+
+- **Fondo**: carbón `#09090b` con gradientes radiales sutiles y grid decorativo
+- **Acento**: esmeralda `#10b981` → cyan → azul (gradiente animado en el Hero)
+- **Navegación**: barra sticky con glassmorphism (blur + transparencia)
+- **Hero**: título tipográfico contundente, badge animado, indicadores de confianza (0 datos biométricos, 0 números telefónicos, 100% código abierto)
+- **Características**: 6 tarjetas con hover glow esmeralda y micro-animaciones
+- **Animaciones**: `fade-in-up` secuencial, `pulse-glow`, `gradient-shift`
 - **Supabase** — Base de datos, autenticación, almacenamiento
 - **TypeScript 5** — Tipado estricto
 - **ESLint 9** — Flat config con reglas de Next.js
