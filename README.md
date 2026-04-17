@@ -59,11 +59,35 @@ src/
 │   │   ├── proxy.ts        # Manejo de la sesión para el proxy
 │   │   ├── types.ts        # Tipos generados de la base de datos
 │   │   └── index.ts        # Barrel export
+│   ├── id-publico.ts       # Conversión UUID → base62 / hex corto
 │   ├── constants.ts        # Constantes globales
 │   └── utils.ts            # Funciones auxiliares
 ├── types/                  # Tipos TypeScript compartidos
 └── proxy.ts                # Proxy de Next.js 16 (intercepta peticiones)
 ```
+
+## Perfiles de usuario
+
+El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfiles_usuario.sql`. Incluye:
+- Tabla `public.perfiles` vinculada a `auth.users` con `ON DELETE CASCADE`.
+- Trigger automático que crea el perfil al registrarse.
+- **RLS inflexible**: `ENABLE` + `FORCE`, políticas granulares por operación, INSERT y DELETE bloqueados.
+- Funciones `SECURITY DEFINER` en esquema `privado` (no expuesto por la API).
+- Restricciones `CHECK` para validar formato de nombre de usuario, URLs y longitudes.
+
+## Identificadores públicos (`IdPublico`)
+
+Componente React y utilidad para generar IDs cortos y estéticos a partir de UUIDs:
+
+```tsx
+import { IdPublico } from '@/components/ui'
+
+<IdPublico uuid={user.id} />                  // → "4kFz9wXq"
+<IdPublico uuid={user.id} prefijo="NX-" />    // → "NX-4kFz9wXq"
+<IdPublico uuid={user.id} formato="hex" />    // → "550e8400"
+```
+
+Matemática: UUID (128 bits) → BigInt → división sucesiva ÷ 62 → 8 caracteres base62 (62⁸ ≈ 218 billones de combinaciones).
 
 ## Autenticación
 
