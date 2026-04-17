@@ -150,6 +150,15 @@ Se ha implementado una ruta `/live-stats` exclusiva para administradores.
 - **Validación de Admin**: La ruta compara el correo electrónico del usuario activo contra la variable de entorno `ADMIN_EMAIL` (por defecto `admin@nexolibre.com`).
 - **Terminal Cibernética**: Muestra un contador gigante de usuarios activos empleando `Supabase Realtime Presence` sobre el canal `presencia-global`. Emite logs de conexión simulados y cuenta con animaciones CRT con Tailwind CSS.
 
+## Botón de Pánico (Anti-Snooping)
+
+La interfaz de chat cuenta con un **Botón de Pánico** para situaciones donde el usuario necesite ocultar inmediatamente la aplicación.
+- **Activación**: Se activa presionando el botón rojo flotante o simplemente presionando la tecla `Escape` (Esc) en el teclado.
+- **Reacción Instantánea**: Aplica un filtro visual `backdrop-blur-3xl` a pantalla completa en el mismo frame para ocultar el contenido.
+- **Borrado Local**: Destruye sincrónicamente los tokens de sesión en `localStorage` y las claves de cifrado en `sessionStorage`.
+- **Redirección Invisible**: Ejecuta `window.location.replace('https://duckduckgo.com')` en menos de 100ms para evadir el historial (back button).
+
+
 
 ## Invitaciones seguras (`005_invitaciones.sql`)
 

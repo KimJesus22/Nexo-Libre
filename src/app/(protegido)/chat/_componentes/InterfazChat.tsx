@@ -25,6 +25,7 @@ import { useChatRealtime } from './useChatRealtime'
 import { usePresenciaGlobal, useEscribiendo } from './usePresencia'
 import SkeletonChats from './SkeletonChats'
 import SkeletonMensajes from './SkeletonMensajes'
+import BotonPanico from './BotonPanico'
 
 /* ── Datos demo (fallback sin conexión) ───────────────────────────────────── */
 const CHATS_DEMO: ChatResumen[] = [
@@ -168,7 +169,11 @@ export default function InterfazChat() {
   )
 
   return (
-    <div className="flex h-[calc(100dvh-1px)] w-full overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+    <div className="flex h-[calc(100dvh-1px)] w-full overflow-hidden rounded-xl border border-border bg-background shadow-2xl relative">
+      
+      {/* Botón de pánico anti-snooping */}
+      <BotonPanico />
+
       {/* ── Indicador de modo ──────────────────────────────────────── */}
       {!usandoReal && rt.userId && (
         <div className="absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full bg-warning/15 px-3 py-1 text-[10px] font-medium text-warning">
