@@ -66,6 +66,28 @@ src/
 └── proxy.ts                # Proxy de Next.js 16 (intercepta peticiones)
 ```
 
+## Cabeceras HTTP de seguridad (`next.config.ts`)
+
+Todas las rutas (`/:path*`) reciben las siguientes cabeceras:
+
+| Cabecera | Valor | Propósito |
+|----------|-------|-----------|
+| `X-Frame-Options` | `DENY` | Anti-clickjacking |
+| `X-Content-Type-Options` | `nosniff` | Anti-MIME sniffing |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | HSTS 2 años |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Control de referrer |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | APIs deshabilitadas |
+| `Content-Security-Policy` | Ver detalle abajo | Política estricta |
+
+**Directivas CSP:**
+- `default-src 'self'` — bloquea todo lo no explícito
+- `script-src 'self'` — solo scripts del mismo origen
+- `style-src 'self' 'unsafe-inline'` — inline requerido por Tailwind/Next
+- `connect-src 'self' https://*.supabase.co wss://*.supabase.co` — API + Realtime
+- `img-src 'self' blob: data: https://*.supabase.co` — avatares en Storage
+- `frame-ancestors 'none'` — refuerza X-Frame-Options
+- `upgrade-insecure-requests` — fuerza HTTPS
+
 ## Perfiles de usuario
 
 El esquema SQL para gestionar perfiles está en `supabase/migrations/001_perfiles_usuario.sql`. Incluye:
