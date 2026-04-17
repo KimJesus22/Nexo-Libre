@@ -102,6 +102,15 @@ Módulo en `src/lib/validacion.ts` — toda entrada del usuario pasa por Zod **a
 
 **Anti-XSS**: regex `REGEX_HTML_PELIGROSO` rechaza etiquetas `script|iframe|object|embed|form|link|meta|base|svg`, atributos `on*=`, URIs `javascript:` y `data:text/html`.
 
+### Anti-Open-Redirect (`/auth/callback`)
+
+El callback de Magic Link valida el parámetro `next` antes de redirigir:
+
+- **Whitelist estática**: solo `/panel`, `/chat`, `/ajustes` son destinos permitidos
+- **Rechaza**: URLs absolutas, `//evil.com`, `\evil.com`, protocolos embebidos
+- **`getBaseUrl()`**: lee `NEXT_PUBLIC_SITE_URL` server-side, valida HTTPS en producción, retorna solo `origin` (sin path/query/hash)
+- **Fallback**: `/panel` si el destino no pasa la validación
+
 ## Hardening PostgreSQL (`004_hardening_constraints.sql`)
 
 CHECK constraints nativos de la DB que actúan como **última línea de defensa** independientemente del frontend:

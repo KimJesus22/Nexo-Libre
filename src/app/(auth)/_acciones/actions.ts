@@ -114,11 +114,40 @@ export async function cerrarSesion() {
 
 /* ── Utilidades ──────────────────────────────────────────────────────────── */
 
+/**
+ * Obtiene la URL base del sitio para construir redirects de auth.
+ *
+ * SEGURIDAD:
+ *   - El valor proviene SOLO de variables de entorno (server-side).
+ *   - NUNCA acepta input del usuario (no lee headers, query params, etc.).
+ *   - Valida que la URL sea HTTPS en producción.
+ *   - Rechaza URLs con path, query o fragment (solo origin).
+ *   - La URL resultante se concatena SOLO con '/auth/callback' (hardcoded).
+ */
 function getBaseUrl(): string {
-  // En producción, usa la variable de entorno o el dominio configurado
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL
+
+  if (envUrl) {
+    // Validar formato: debe ser una URL válida
+    let parsed: URL
+    try {
+      parsed = new URL(envUrl)
+    } catch {
+      // Si la URL es inválida, fallback seguro
+      console.error('NEXT_PUBLIC_SITE_URL inválida, usando localhost')
+      return 'http://localhost:3000'
+    }
+
+    // En producción: exigir HTTPS
+    if (process.env.NODE_ENV === 'production' && parsed.protocol !== 'https:') {
+      console.error('NEXT_PUBLIC_SITE_URL debe usar HTTPS en producción')
+      return 'http://localhost:3000'
+    }
+
+    // Retornar SOLO el origin (protocolo + host + puerto, sin path/query/hash)
+    return parsed.origin
   }
-  // En desarrollo, usa localhost
+
+  // En desarrollo sin variable configurada
   return 'http://localhost:3000'
 }
