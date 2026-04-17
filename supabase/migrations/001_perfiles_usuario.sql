@@ -145,18 +145,29 @@ grant select, update on public.perfiles to authenticated;
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Si el usuario tiene factores TOTP verificados → exige aal2.
 -- Si no tiene 2FA activado → acepta aal1 y aal2.
+
+-- Función auxiliar (SECURITY DEFINER) para evitar "permission denied" en auth.mfa_factors
+create or replace function public.tiene_mfa_verificado(p_user_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+  select exists (
+    select 1
+    from auth.mfa_factors
+    where user_id = p_user_id
+      and status = 'verified'
+  );
+$$;
+
 create policy "perfiles_requiere_2fa_si_activado"
   on public.perfiles
   as restrictive
   to authenticated
   using (
-    array[(select auth.jwt()->>'aal')] <@ (
-      select
-        case
-          when count(id) > 0 then array['aal2']
-          else array['aal1', 'aal2']
-        end
-      from auth.mfa_factors
-      where ((select auth.uid()) = user_id) and status = 'verified'
-    )
+    not public.tiene_mfa_verificado((select auth.uid()))
+    or
+    array[(select auth.jwt()->>'aal')] <@ array['aal2']
   );
