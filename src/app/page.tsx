@@ -5,6 +5,7 @@
  * Hero + Propuesta de valor + Características + CTA final.
  */
 import Link from 'next/link'
+import AnimacionIntercepcion from './_componentes/AnimacionIntercepcion'
 
 /* ── Datos de las características ─────────────────────────────────────────── */
 const CARACTERISTICAS = [
@@ -201,6 +202,9 @@ export default function PaginaInicio() {
                 </svg>
               </Link>
             </div>
+
+            {/* Animación de intercepción */}
+            <AnimacionIntercepcion />
 
             {/* Indicadores de confianza */}
             <div className="animate-fade-in-up-delay-3 mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-xs font-medium text-muted">
