@@ -29,6 +29,7 @@ import {
   esMensajeCifrado,
 } from '@/lib/crypto/e2ee'
 import { esquemaContenidoMensaje } from '@/lib/validacion'
+import { useColaOffline, type MensajePendiente } from './useColaOffline'
 
 /* ── Tipos de base de datos ───────────────────────────────────────────────── */
 interface MensajeDB {
@@ -120,6 +121,9 @@ export function useChatRealtime() {
 
   // Clave E2EE del chat activo (AES-256-GCM)
   const claveE2EE = useRef<CryptoKey | null>(null)
+
+  // Cola offline
+  const offline = useColaOffline()
 
   /* ── 1. Obtener usuario actual ──────────────────────────────────────── */
   useEffect(() => {
@@ -478,7 +482,22 @@ export function useChatRealtime() {
         .single()
 
       if (error) {
-        // Rollback del optimistic update
+        // Si estamos offline, encolar para envío posterior
+        if (!navigator.onLine) {
+          const pendiente: MensajePendiente = {
+            id: idTemporal,
+            chat_id: chatActivoId,
+            autor_id: userId,
+            contenido: contenidoCifrado,
+            expira_en,
+            encolado_en: new Date().toISOString(),
+          }
+          offline.encolar(pendiente)
+          // Mantener el optimistic update (se enviará al reconectarse)
+          return
+        }
+
+        // Error real (no por falta de red): rollback
         setMensajes((prev) => prev.filter((m) => m.id !== idTemporal))
         console.error('Error al enviar mensaje:', error.message)
         return
@@ -491,7 +510,7 @@ export function useChatRealtime() {
         )
       }
     },
-    [chatActivoId, userId, supabase]
+    [chatActivoId, userId, supabase, offline]
   )
 
   /* ── 6. Seleccionar chat ────────────────────────────────────────────── */
@@ -524,5 +543,9 @@ export function useChatRealtime() {
     seleccionarChat,
     volverALista,
     enviarMensaje,
+    // Estado offline
+    enLinea: offline.enLinea,
+    pendientesOffline: offline.pendientes,
+    enviandoPendientes: offline.enviando,
   }
 }

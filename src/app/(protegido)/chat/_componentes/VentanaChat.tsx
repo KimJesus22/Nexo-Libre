@@ -39,6 +39,12 @@ interface PropsVentanaChat {
   cargandoAntiguos?: boolean
   /** Paginación: callback para cargar más mensajes antiguos */
   alCargarAntiguos?: () => void
+  /** Si el navegador está conectado a internet */
+  redEnLinea?: boolean
+  /** Mensajes pendientes en la cola offline */
+  pendientesOffline?: number
+  /** Si se está enviando la cola offline */
+  enviandoPendientes?: boolean
 }
 
 export default function VentanaChat({
@@ -54,6 +60,9 @@ export default function VentanaChat({
   hayMasAntiguos,
   cargandoAntiguos,
   alCargarAntiguos,
+  redEnLinea = true,
+  pendientesOffline = 0,
+  enviandoPendientes = false,
 }: PropsVentanaChat) {
   const [texto, setTexto] = useState('')
   const [expiracion, setExpiracion] = useState<number | null>(null) // null = Nunca
@@ -202,6 +211,26 @@ export default function VentanaChat({
           </svg>
         </button>
       </header>
+
+      {/* ── Banner Offline ──────────────────────────────────────────── */}
+      {!redEnLinea && (
+        <div className="flex shrink-0 items-center justify-center gap-2 border-b border-warning/20 bg-warning/5 px-4 py-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-warning animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <span className="text-[11px] font-medium text-warning">
+            Esperando red…{pendientesOffline > 0 ? ` • ${pendientesOffline} mensaje${pendientesOffline > 1 ? 's' : ''} en cola` : ''}
+          </span>
+        </div>
+      )}
+
+      {/* ── Banner de sincronización ─────────────────────────────────── */}
+      {enviandoPendientes && redEnLinea && (
+        <div className="flex shrink-0 items-center justify-center gap-2 border-b border-accent/20 bg-accent/5 px-4 py-1.5">
+          <div className="h-3 w-3 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          <span className="text-[11px] font-medium text-accent">Enviando mensajes pendientes…</span>
+        </div>
+      )}
 
       {/* ── Mensajes ───────────────────────────────────────────────── */}
       <div

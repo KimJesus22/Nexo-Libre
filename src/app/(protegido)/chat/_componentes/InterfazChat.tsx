@@ -225,6 +225,9 @@ export default function InterfazChat() {
               hayMasAntiguos={usandoReal ? rt.hayMasAntiguos : false}
               cargandoAntiguos={usandoReal ? rt.cargandoAntiguos : false}
               alCargarAntiguos={usandoReal ? rt.cargarMasAntiguos : undefined}
+              redEnLinea={usandoReal ? rt.enLinea : true}
+              pendientesOffline={usandoReal ? rt.pendientesOffline : 0}
+              enviandoPendientes={usandoReal ? rt.enviandoPendientes : false}
             />
           )
         ) : (
