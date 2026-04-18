@@ -120,13 +120,18 @@ export async function listarMisInvitaciones() {
 /* ── Utilidades ───────────────────────────────────────────────────────────── */
 
 function getBaseUrl(): string {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL
-  if (envUrl) {
-    try {
-      return new URL(envUrl).origin
-    } catch {
-      return 'http://localhost:3000'
-    }
+  // 1. Prioridad: Variable explícita configurada por el usuario
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
   }
+  
+  // 2. Vercel: URL en producción o preview
+  // Vercel inyecta VERCEL_URL y NEXT_PUBLIC_VERCEL_URL sin protocolo
+  const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL || process.env.NEXT_PUBLIC_VERCEL_URL
+  if (vercelUrl) {
+    return `https://${vercelUrl}`
+  }
+
+  // 3. Entorno de desarrollo local
   return 'http://localhost:3000'
 }
