@@ -1,0 +1,70 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# CI — NexoLibre
+#
+# Pipeline de integración continua que se ejecuta en cada push y pull request
+# a la rama main. Actúa como escudo de calidad: si el lint o el build fallan,
+# el merge queda bloqueado y Vercel no despliega código defectuoso.
+#
+# Flujo:
+#   1. Checkout del código
+#   2. Instalar pnpm (versión fijada en package.json → packageManager)
+#   3. Instalar Node.js (con caché de pnpm)
+#   4. Instalar dependencias
+#   5. Ejecutar ESLint
+#   6. Ejecutar build de producción
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancelar ejecuciones previas del mismo PR/rama para ahorrar minutos
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      # ── 2. Instalar pnpm ────────────────────────────────────────────────────
+      # Lee la versión exacta desde el campo "packageManager" de package.json
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+
+      # ── 3. Instalar Node.js ─────────────────────────────────────────────────
+      # Cachea automáticamente el store de pnpm entre ejecuciones
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # ── 4. Instalar dependencias ────────────────────────────────────────────
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # ── 5. Linter ───────────────────────────────────────────────────────────
+      - name: Ejecutar ESLint
+        run: pnpm lint
+
+      # ── 6. Build de producción ──────────────────────────────────────────────
+      # Valida que el proyecto compile sin errores de TypeScript ni de Next.js.
+      # Las variables de Supabase no son necesarias en build time gracias a
+      # que se leen en runtime; usamos placeholders para evitar errores.
+      - name: Build de producción
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_placeholder_key

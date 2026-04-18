@@ -24,10 +24,11 @@ export default async function PaginaLiveStats() {
   }
 
   // Validación de administrador
-  // Se puede configurar ADMIN_EMAIL en las variables de entorno
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@nexolibre.com'
+  // Se pueden configurar varios correos separados por coma
+  const adminEmailsEnv = process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@nexolibre.com'
+  const allowedAdminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase())
   
-  if (user.email !== adminEmail) {
+  if (!user.email || !allowedAdminEmails.includes(user.email.toLowerCase())) {
     // Si no es admin, no puede acceder a esta ruta
     redirect('/panel')
   }

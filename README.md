@@ -422,6 +422,25 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Navegación Global Adaptativa**: Implementación de un `NavegacionGlobal` tipo Header en escritorio y tipo Drawer en móviles, permitiendo fluidez entre secciones de la aplicación y resaltando visualmente la ruta activa.
 - **Interfaz de Chat Optimizada**: *Empty States* limpios para el área de chat y paneles laterales que aseguran una altura táctil estandarizada (`44px` a `56px`) en listas y controles de mensajería (Pointer Coarse).
 - **Legibilidad Estricta**: Refactorización profunda para elevar todos los textos secundarios y *placeholders* hacia escalas grises legibles (e.g. `text-gray-400`), superando los rangos de contraste de WCAG AA.
+- **Marco Legal (LFPDPPP)**: Aviso de Privacidad Integral y Términos de Servicio redactados conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares de México, accesibles en las rutas `/privacidad` y `/terminos`.
+- **CI/CD con GitHub Actions**: Pipeline automatizado (`.github/workflows/check.yml`) que ejecuta `pnpm lint` y `pnpm build` en cada push/PR a `main`, actuando como escudo de calidad previo al despliegue en Vercel.
+
+### Rutas de la aplicación
+
+| Ruta | Acceso | Descripción |
+|------|--------|-------------|
+| `/` | Público | Landing Page con animación de intercepción de SMS |
+| `/registrarse` | Público | Registro con correo y contraseña (sin teléfono ni ID) |
+| `/iniciar-sesion` | Público | Login con contraseña o Magic Link |
+| `/verificar-correo` | Público | Pantalla de espera tras verificación de email |
+| `/verificar-2fa` | Público | Verificación del segundo factor (TOTP) |
+| `/privacidad` | Público | Aviso de Privacidad Integral (LFPDPPP) |
+| `/terminos` | Público | Términos y Condiciones de Servicio |
+| `/join/[token]` | Público | Aceptación de invitaciones de un solo uso |
+| `/panel` | Protegido | Dashboard principal, Score de seguridad, 2FA |
+| `/chat` | Protegido | Mensajería cifrada en tiempo real |
+| `/ajustes` | Protegido | Privacidad, purga de datos, invitaciones |
+| `/live-stats` | Admin | Terminal de estadísticas en vivo (requiere `ADMIN_EMAIL`) |
 
 ## Despliegue
 
