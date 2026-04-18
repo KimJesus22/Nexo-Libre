@@ -43,7 +43,9 @@ export default async function LayoutProtegido({
       <div className="flex min-h-screen flex-col">
         <NavegacionGlobal />
         <div className="flex-1 flex flex-col">
-          {children}
+          <div className="mx-auto max-w-7xl w-full flex-1 flex flex-col px-4 sm:px-6 lg:px-8 py-6">
+            {children}
+          </div>
         </div>
       </div>
     </ProveedorOnboarding>

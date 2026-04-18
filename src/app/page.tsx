@@ -237,19 +237,21 @@ export default function PaginaInicio() {
         {/* ════════════════════════════════════════════════════════════════
             PROPUESTA DE VALOR
             ════════════════════════════════════════════════════════════════ */}
-        <section className="relative border-t border-border-subtle bg-surface px-6 py-24">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-accent">
-              El problema
-            </h2>
-            <p className="mt-4 text-2xl font-bold leading-snug text-foreground sm:text-3xl">
-              Las plataformas tradicionales exigen tu número de teléfono
-              como requisito de acceso.{' '}
-              <span className="text-muted">
-                Eso te expone al SIM Swapping, al rastreo comercial
-                y a la pérdida de control sobre tu identidad digital.
-              </span>
-            </p>
+        <section className="relative border-t border-border-subtle bg-surface py-24">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            <div className="max-w-4xl text-center">
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-accent text-center">
+                El problema
+              </h2>
+              <p className="mt-4 text-2xl font-bold leading-snug text-foreground sm:text-3xl">
+                Las plataformas tradicionales exigen tu número de teléfono
+                como requisito de acceso.{' '}
+                <span className="text-gray-400">
+                  Eso te expone al SIM Swapping, al rastreo comercial
+                  y a la pérdida de control sobre tu identidad digital.
+                </span>
+              </p>
+            </div>
           </div>
         </section>
 
@@ -258,21 +260,21 @@ export default function PaginaInicio() {
             ════════════════════════════════════════════════════════════════ */}
         <section
           id="caracteristicas"
-          className="relative border-t border-border-subtle px-6 py-24"
+          className="relative border-t border-border-subtle py-24"
           aria-labelledby="titulo-caracteristicas"
         >
           {/* Glow decorativo */}
           <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/3 blur-[120px]" aria-hidden="true" />
 
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <header className="mb-16 text-center">
+          <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            <header className="mb-16 text-center w-full">
               <h2
                 id="titulo-caracteristicas"
-                className="text-sm font-semibold uppercase tracking-widest text-accent"
+                className="text-sm font-semibold uppercase tracking-widest text-accent text-center"
               >
                 Arquitectura de seguridad
               </h2>
-              <p className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              <p className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center">
                 Seis pilares que protegen tu cuenta
               </p>
             </header>
@@ -302,33 +304,35 @@ export default function PaginaInicio() {
         {/* ════════════════════════════════════════════════════════════════
             CTA FINAL
             ════════════════════════════════════════════════════════════════ */}
-        <section className="relative border-t border-border-subtle px-6 py-24">
+        <section className="relative border-t border-border-subtle py-24">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent/3 to-transparent" aria-hidden="true" />
 
-          <div className="relative z-10 mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Tu privacidad no es negociable
-            </h2>
-            <p className="mt-4 text-lg text-foreground-secondary">
-              Crea tu cuenta en segundos. Solo necesitas un correo electrónico.
-              Sin teléfono, sin documentos, sin letra pequeña.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="/registrarse"
-                className="group inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-base font-semibold text-accent-foreground transition-all hover:bg-accent-hover hover:shadow-[0_0_30px_var(--accent-glow)] active:scale-[0.98]"
-              >
-                Crear cuenta gratuita
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-              <Link
-                href="/iniciar-sesion"
-                className="text-sm font-medium text-muted transition-colors hover:text-foreground"
-              >
-                ¿Ya tienes cuenta? Inicia sesión →
-              </Link>
+          <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            <div className="max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center">
+                Tu privacidad no es negociable
+              </h2>
+              <p className="mt-4 text-lg text-gray-400">
+                Crea tu cuenta en segundos. Solo necesitas un correo electrónico.
+                Sin teléfono, sin documentos, sin letra pequeña.
+              </p>
+              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link
+                  href="/registrarse"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-base font-semibold text-accent-foreground transition-all hover:bg-accent-hover hover:shadow-[0_0_30px_var(--accent-glow)] active:scale-[0.98]"
+                >
+                  Crear cuenta gratuita
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/iniciar-sesion"
+                  className="text-sm font-medium text-gray-400 transition-colors hover:text-foreground"
+                >
+                  ¿Ya tienes cuenta? Inicia sesión →
+                </Link>
+              </div>
             </div>
           </div>
         </section>

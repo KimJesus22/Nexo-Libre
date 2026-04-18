@@ -424,6 +424,8 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Legibilidad Estricta**: Refactorización profunda para elevar todos los textos secundarios y *placeholders* hacia escalas grises legibles (e.g. `text-gray-400`), superando los rangos de contraste de WCAG AA.
 - **Marco Legal (LFPDPPP)**: Aviso de Privacidad Integral y Términos de Servicio redactados conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares de México, accesibles en las rutas `/privacidad` y `/terminos`.
 - **CI/CD con GitHub Actions**: Pipeline automatizado (`.github/workflows/check.yml`) que ejecuta `pnpm lint` y `pnpm build` en cada push/PR a `main`, actuando como escudo de calidad previo al despliegue en Vercel.
+- **Centrado Responsivo (Landing)**: Secciones *El Problema*, *Arquitectura de seguridad* y *Tu privacidad no es negociable* envueltas en contenedores `max-w-6xl mx-auto` con padding progresivo (`px-4 sm:px-6 lg:px-8`), eliminando el desalineamiento en monitores ultrawide.
+- **Layout Unificado (Dashboard)**: Contenedor principal de rutas protegidas y barra de navegación global comparten `max-w-7xl mx-auto`, asegurando que Panel, Chat y Ajustes se vean perfectamente centrados en cualquier resolución.
 
 ### Rutas de la aplicación
 
