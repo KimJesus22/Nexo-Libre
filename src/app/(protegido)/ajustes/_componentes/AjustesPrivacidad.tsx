@@ -225,6 +225,36 @@ export default function AjustesPrivacidad() {
         </div>
       </section>
 
+      {/* ── Apoya el Proyecto ──────────────────────────────────────── */}
+      <section className="rounded-xl border border-border/50 bg-surface/50 p-5 mt-8">
+        <div className="flex items-start gap-4">
+          <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+          </div>
+          <div className="flex-1 space-y-3">
+            <div>
+              <h3 className="text-base font-semibold text-foreground">Apoya el Proyecto</h3>
+              <p className="mt-1 text-sm text-muted">
+                NexoLibre es de código abierto, gratuito y sin anuncios. Se mantiene vivo gracias a aportaciones voluntarias que nos ayudan a cubrir los costos de infraestructura (servidores, base de datos) para asegurar que tu comunicación siga siendo privada.
+              </p>
+            </div>
+            <a
+              href="https://buymeacoffee.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg bg-surface-elevated px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-border/50"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+              </svg>
+              Donar para los servidores
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── Feedback de guardado ────────────────────────────────────── */}
       <div
         className={`fixed bottom-6 right-6 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-lg transition-all duration-300 ${
