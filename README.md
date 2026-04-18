@@ -408,6 +408,14 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Características**: 6 tarjetas con hover glow esmeralda y micro-animaciones
 - **Animaciones**: `fade-in-up` secuencial, `pulse-glow`, `gradient-shift`
 
+### Mejoras de UX y Accesibilidad (WCAG)
+
+- **Optimización Táctil**: Alturas mínimas de `44px` en botones de auth y casillas de verificación grandes (`h-5 w-5`) para cumplir con los estándares de usabilidad móvil.
+- **Feedback Visual Inmediato**: Implementación de Toasts modernos mediante `sonner` (con `aria-live="polite"`) para retroalimentación instantánea (p.ej. envío de Magic Link).
+- **Contraste de Texto Mejorado**: Uso sistemático de colores legibles (`text-gray-200` y `text-gray-400`) sobre fondos oscuros, garantizando un alto ratio de contraste.
+- **Navegación por Teclado**: Elementos interactivos y tarjetas informativas (`tabIndex={0}`) incluyen bordes de foco contrastantes (`focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black`).
+- **Semántica en Íconos**: Atributo `aria-hidden="true"` implementado en gráficos decorativos (SVGs) para evitar ruido semántico en lectores de pantallas.
+
 ## Despliegue
 
 ### Requisitos previos

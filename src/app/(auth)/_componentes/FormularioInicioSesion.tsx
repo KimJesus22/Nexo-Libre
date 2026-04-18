@@ -12,6 +12,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import {
   iniciarSesionConMagicLink,
   iniciarSesionConCorreo,
@@ -34,6 +35,8 @@ export default function FormularioInicioSesion() {
 
       if (resultado?.error) {
         setError(resultado.error)
+      } else if (modo === 'magic-link') {
+        toast.success('Enlace mágico enviado, revisa tu correo')
       }
     })
   }
@@ -62,10 +65,10 @@ export default function FormularioInicioSesion() {
           type="button"
           role="tab"
           aria-selected={modo === 'magic-link'}
-          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black ${
             modo === 'magic-link'
               ? 'bg-accent text-accent-foreground'
-              : 'text-muted hover:text-foreground'
+              : 'text-gray-400 hover:text-gray-200'
           }`}
           onClick={() => {
             setModo('magic-link')
@@ -78,10 +81,10 @@ export default function FormularioInicioSesion() {
           type="button"
           role="tab"
           aria-selected={modo === 'contrasena'}
-          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black ${
             modo === 'contrasena'
               ? 'bg-accent text-accent-foreground'
-              : 'text-muted hover:text-foreground'
+              : 'text-gray-400 hover:text-gray-200'
           }`}
           onClick={() => {
             setModo('contrasena')
@@ -98,7 +101,7 @@ export default function FormularioInicioSesion() {
           <div>
             <label
               htmlFor="email"
-              className="mb-1.5 block text-sm font-medium text-foreground"
+              className="mb-1.5 block text-sm font-medium text-gray-400"
             >
               Correo electrónico
             </label>
@@ -109,7 +112,7 @@ export default function FormularioInicioSesion() {
               autoComplete="email"
               required
               placeholder="tu@correo.com"
-              className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-gray-200 placeholder:text-gray-300 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
             />
           </div>
 
@@ -117,7 +120,7 @@ export default function FormularioInicioSesion() {
             <div>
               <label
                 htmlFor="password"
-                className="mb-1.5 block text-sm font-medium text-foreground"
+                className="mb-1.5 block text-sm font-medium text-gray-400"
               >
                 Contraseña
               </label>
@@ -129,7 +132,7 @@ export default function FormularioInicioSesion() {
                 required
                 minLength={8}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-gray-200 placeholder:text-gray-300 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
               />
             </div>
           )}
@@ -147,7 +150,7 @@ export default function FormularioInicioSesion() {
           {/* ── Botón de envío ─────────────────────────────────────────── */}
           <button
             type="submit"
-            className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90 focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-h-[44px] w-full rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending
               ? 'Procesando…'
@@ -159,12 +162,12 @@ export default function FormularioInicioSesion() {
       </form>
 
       {/* ── Enlace a registro ─────────────────────────────────────────── */}
-      <footer className="mt-6 text-center text-sm text-muted">
+      <footer className="mt-6 text-center text-sm text-gray-400">
         <p>
           ¿No tienes cuenta?{' '}
           <Link
             href="/registrarse"
-            className="font-medium text-accent hover:underline"
+            className="font-medium text-accent hover:underline focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black rounded-sm"
           >
             Regístrate aquí
           </Link>

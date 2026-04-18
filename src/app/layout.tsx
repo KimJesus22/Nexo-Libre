@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import RegistroSW from "./_componentes/RegistroSW";
 import ScriptAnaliticas from "./_componentes/ScriptAnaliticas";
+import { Toaster } from "sonner";
 
 /* ── Tipografías ─────────────────────────────────────────────────────────── */
 const geistSans = Geist({
@@ -86,6 +87,7 @@ export default function RootLayout({
     >
       <body>
         {children}
+        <Toaster position="top-center" richColors theme="dark" toastOptions={{ "aria-live": "polite" } as any} />
         <RegistroSW />
         <ScriptAnaliticas />
       </body>
