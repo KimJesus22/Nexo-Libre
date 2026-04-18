@@ -426,6 +426,8 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **CI/CD con GitHub Actions**: Pipeline automatizado (`.github/workflows/check.yml`) que ejecuta `pnpm lint` y `pnpm build` en cada push/PR a `main`, actuando como escudo de calidad previo al despliegue en Vercel.
 - **Centrado Responsivo (Landing)**: Secciones *El Problema*, *Arquitectura de seguridad* y *Tu privacidad no es negociable* envueltas en contenedores `max-w-6xl mx-auto` con padding progresivo (`px-4 sm:px-6 lg:px-8`), eliminando el desalineamiento en monitores ultrawide.
 - **Layout Unificado (Dashboard)**: Contenedor principal de rutas protegidas y barra de navegación global comparten `max-w-7xl mx-auto`, asegurando que Panel, Chat y Ajustes se vean perfectamente centrados en cualquier resolución.
+- **Búsqueda de Chat Reestructurada**: Barra de búsqueda refactorizada de posicionamiento absoluto a `flex items-center`, eliminando la superposición entre el ícono de lupa y el texto del input.
+- **Botón de Purga Sólido**: Acción destructiva de datos convertida a un botón rojo prominente (`bg-red-600`) con ancho completo en móvil (`w-full sm:w-auto`), imposible de confundir con un enlace de texto.
 
 ### Rutas de la aplicación
 

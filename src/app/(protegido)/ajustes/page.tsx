@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function PaginaAjustes() {
   return (
-    <main className="flex flex-1 justify-center px-4 py-8 md:px-8">
+    <main className="flex flex-1 justify-center py-8">
       <AjustesPrivacidad />
     </main>
   )

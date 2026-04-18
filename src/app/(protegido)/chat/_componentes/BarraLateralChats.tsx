@@ -64,8 +64,8 @@ export default function BarraLateralChats({
 
       {/* ── Búsqueda ───────────────────────────────────────────────── */}
       <div className="shrink-0 border-b border-border-subtle px-3 py-3">
-        <div className="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="flex items-center bg-gray-800 rounded-md px-3 py-2 w-full focus-within:ring-1 focus-within:ring-accent">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
           <input
@@ -74,7 +74,7 @@ export default function BarraLateralChats({
             value={busqueda}
             onChange={(e) => alBuscar(e.target.value)}
             placeholder="Buscar conversación…"
-            className="w-full rounded-md border border-border-subtle bg-gray-800 py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-gray-400 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent"
+            className="bg-transparent w-full border-none focus:outline-none text-sm text-gray-200 placeholder-gray-400"
           />
         </div>
       </div>

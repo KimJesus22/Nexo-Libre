@@ -92,7 +92,7 @@ export default function AjustesPrivacidad() {
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6">
+    <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8 space-y-6">
       {/* ── Header ─────────────────────────────────────────────────── */}
       <div className="space-y-1">
         <h1 className="text-xl font-bold text-foreground">Ajustes de privacidad</h1>
@@ -220,7 +220,7 @@ export default function AjustesPrivacidad() {
             type="button"
             onClick={() => setModalPurgaAbierto(true)}
             disabled={purgaEjecutada}
-            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-xs font-semibold text-destructive transition-all hover:bg-destructive/20 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 focus:ring-offset-black"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-md transition-colors mt-4 w-full sm:w-auto inline-block text-center disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black"
           >
             {purgaEjecutada ? '✓ Datos purgados' : 'Ejecutar purga'}
           </button>

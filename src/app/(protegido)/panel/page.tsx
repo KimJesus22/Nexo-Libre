@@ -24,7 +24,7 @@ export default async function PaginaPanel() {
     <main className="flex flex-1 flex-col px-6 py-10">
       <div className="mx-auto w-full max-w-5xl flex flex-col gap-10">
         {/* ── Header ──────────────────────────────────────────────────── */}
-        <header className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Panel de control
