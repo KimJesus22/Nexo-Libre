@@ -53,6 +53,7 @@ export default function AjustesPrivacidad() {
     modoEfimero: false,
     borrarAlCerrar: false,
     deshabilitarPrevisualizacion: false,
+    sonidoNotificaciones: true,
   })
   const [guardado, setGuardado] = useState(false)
   const [purgaEjecutada, setPurgaEjecutada] = useState(false)
@@ -195,6 +196,33 @@ export default function AjustesPrivacidad() {
             labelId="label-preview"
             activo={prefs.deshabilitarPrevisualizacion}
             alCambiar={(v) => actualizarPref('deshabilitarPrevisualizacion', v)}
+          />
+        </div>
+      </section>
+
+      {/* ── Sonido de notificaciones ────────────────────────────────── */}
+      <section className="rounded-xl border border-border bg-surface p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6v.9a.75.75 0 001.5 0v-.9a8.287 8.287 0 002.862-2.386zM12 3a9 9 0 00-8.998 8.997A8.997 8.997 0 0012 21a8.998 8.998 0 008.997-8.998A8.998 8.998 0 0012 3z" />
+                </svg>
+              </div>
+              <label id="label-sonido" htmlFor="toggle-sonido" className="text-base font-semibold text-gray-300 cursor-pointer">
+                Sonido de notificaciones
+              </label>
+            </div>
+            <p className="text-sm text-gray-400 leading-relaxed max-w-md">
+              Reproduce un sonido cuando recibes un mensaje nuevo.
+            </p>
+          </div>
+          <Toggle
+            id="toggle-sonido"
+            labelId="label-sonido"
+            activo={prefs.sonidoNotificaciones}
+            alCambiar={(v) => actualizarPref('sonidoNotificaciones', v)}
           />
         </div>
       </section>

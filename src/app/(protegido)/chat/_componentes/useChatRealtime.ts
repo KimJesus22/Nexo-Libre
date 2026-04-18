@@ -328,6 +328,81 @@ export function useChatRealtime() {
     setCargandoAntiguos(false)
   }, [chatActivoId, userId, cargandoAntiguos, supabase, resolverNombres, descifrarYMapear])
 
+  /* ── Notificaciones de Audio ───────────────────────────────────────────── */
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Usamos un pequeño sonido en base64 (un 'pop' muy corto) para evitar dependencias externas.
+      // Opcionalmente se puede cambiar por '/sounds/notification.mp3' si el archivo existe.
+      const beepBase64 = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWoGAACBhYqPjYyJi42NjY2MjIyMjIyPjI2MjIyMjIyMjIyMjI2NjY2MjIyMjI2NjIyMjI2NjYyMjIyMjI2NjYyMjIyMjIyMjI2NjYyNjY2MjI2NjIyMjI2MjIyMjIyMjIyNjYyMjIyMjIyMjI2NjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyMjIyMjIyNjIyNjIyMjI2NjIyMjIyMjI2NjIyMjI2NjIyMjI2NjIyMjI2NjIyNjIyMjI2NjIyMjI2NjIyMjI2NjIyMjI2NjIyNjIyMjI2NjIyMjI2NjIyMjI2NjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyMjIyMjI2NjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyMjIyMjI2NjIyMjIyMjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyNjIyMjIyMjI2NjIyMjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyNjIyMjIyMjI2NjIyMjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyNjIyMjIyMjI2NjIyMjIyMjI2NjIyMjI2NjIyMjIyMjI2NjIyNjIyMjIyMjI2NjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjI='
+      audioRef.current = new Audio(beepBase64)
+    }
+  }, [])
+
+  const chatActivoIdRef = useRef(chatActivoId)
+  useEffect(() => {
+    chatActivoIdRef.current = chatActivoId
+  }, [chatActivoId])
+
+  /* ── 3c. Notificaciones Globales ──────────────────────────────────────── */
+  useEffect(() => {
+    if (!userId) return
+
+    const canalGlobal = supabase
+      .channel('notificaciones_globales')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'mensajes' },
+        (payload) => {
+          const nuevo = payload.new as MensajeDB
+          
+          if (nuevo.autor_id !== userId) {
+            // Verificar preferencias
+            const prefsString = localStorage.getItem('nexo_privacidad')
+            let sonidoActivo = true
+            if (prefsString) {
+              try {
+                const prefs = JSON.parse(prefsString)
+                sonidoActivo = prefs.sonidoNotificaciones !== false
+              } catch {}
+            }
+
+            if (sonidoActivo && audioRef.current) {
+              const enOtroChat = nuevo.chat_id !== chatActivoIdRef.current
+              const isHidden = document.hidden
+
+              // Sonido si está oculta o si el mensaje es de otro chat
+              if (isHidden || enOtroChat) {
+                audioRef.current.play().catch(() => {})
+              }
+            }
+          }
+
+          // Actualizar sidebar para chats en segundo plano
+          if (nuevo.chat_id !== chatActivoIdRef.current) {
+             setChats((prevChats) =>
+               prevChats.map((c) =>
+                 c.id === nuevo.chat_id
+                   ? {
+                       ...c,
+                       ultimoMensaje: 'Mensaje nuevo (cifrado)',
+                       ultimaFecha: formatearHora(nuevo.creado_en),
+                       sinLeer: (c.sinLeer || 0) + 1,
+                     }
+                   : c
+               )
+             )
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(canalGlobal)
+    }
+  }, [userId, supabase])
+
   /* ── 4. Suscripción Realtime (INSERT en mensajes) ───────────────────── */
   useEffect(() => {
     if (!chatActivoId || !userId) return
@@ -406,6 +481,7 @@ export function useChatRealtime() {
       canalRef.current = null
     }
   }, [chatActivoId, userId, supabase, cargarMensajes])
+
 
   /* ── 5. Enviar mensaje ──────────────────────────────────────────────── */
   const enviarMensaje = useCallback(

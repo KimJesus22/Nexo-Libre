@@ -18,12 +18,14 @@ export interface PreferenciasPrivacidad {
   modoEfimero: boolean
   borrarAlCerrar: boolean
   deshabilitarPrevisualizacion: boolean
+  sonidoNotificaciones: boolean
 }
 
 const DEFAULTS: PreferenciasPrivacidad = {
   modoEfimero: false,
   borrarAlCerrar: false,
   deshabilitarPrevisualizacion: false,
+  sonidoNotificaciones: true,
 }
 
 /** Obtiene las preferencias de privacidad desde localStorage */
