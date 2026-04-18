@@ -18,6 +18,7 @@ import {
   GraficoCurva,
   Contador,
 } from './GraficosDashboard'
+import { StatusCard } from '@/components/ui/StatusCard'
 
 interface EstadoSeguridad {
   emailVerificado: boolean
@@ -45,6 +46,7 @@ const SESIONES_MES = [1, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 14]
 export default function MetricasDashboard() {
   const [estado, setEstado] = useState<EstadoSeguridad | null>(null)
   const [cargando, setCargando] = useState(true)
+  const [modalScoreAbierto, setModalScoreAbierto] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -124,16 +126,39 @@ export default function MetricasDashboard() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* ── Banner 2FA ─────────────────────────────────────────────────── */}
+      {!estado.tiene2FA && (
+        <div className="flex flex-col sm:flex-row items-center justify-between bg-accent/10 border border-accent p-4 rounded-md gap-4 animate-in fade-in slide-in-from-top-4">
+          <div>
+            <h3 className="text-accent font-bold text-lg">Protege tu cuenta</h3>
+            <p className="text-sm text-gray-300 mt-1">Activa la Autenticación en dos pasos (2FA) para añadir una capa extra de seguridad.</p>
+          </div>
+          <a
+            href="#titulo-2fa"
+            className="whitespace-nowrap bg-accent text-black font-bold px-4 py-2 rounded-md hover:bg-accent-light transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
+          >
+            Activar 2FA
+          </a>
+        </div>
+      )}
+
       {/* ── Fila 1: Score + Estado de identidad ──────────────────────── */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {/* Score de seguridad */}
-        <div className="flex items-center justify-center rounded-2xl border border-border bg-surface p-6">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface p-6">
           <ProgresoRadial
             porcentaje={score}
             etiqueta="Score de seguridad"
             color={colorScore}
             tamaño={140}
           />
+          <button
+            type="button"
+            onClick={() => setModalScoreAbierto(true)}
+            className="mt-4 text-sm text-gray-300 hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black rounded-sm"
+          >
+            <span className="underline decoration-accent underline-offset-4 text-accent hover:text-accent-light transition-colors">¿Cómo aumentar tu puntuación?</span>
+          </button>
         </div>
 
         {/* Checklist de identidad */}
@@ -142,36 +167,36 @@ export default function MetricasDashboard() {
             Estado de tu identidad
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
-            <ItemChecklist
-              activo={estado.emailVerificado}
+            <StatusCard
+              estado={estado.emailVerificado ? 'activo' : 'inactivo'}
               titulo="Correo verificado"
-              detalle="Tu dirección de email fue confirmada"
+              descripcion="Tu dirección de email fue confirmada"
             />
-            <ItemChecklist
-              activo={estado.tiene2FA}
+            <StatusCard
+              estado={estado.tiene2FA ? 'activo' : 'inactivo'}
               titulo="2FA activado"
-              detalle="Autenticador TOTP configurado"
+              descripcion="Autenticador TOTP configurado"
             />
-            <ItemChecklist
-              activo={estado.sesionActiva}
+            <StatusCard
+              estado={estado.sesionActiva ? 'activo' : 'inactivo'}
               titulo="Sesión activa"
-              detalle="JWT válido y refrescado"
+              descripcion="JWT válido y refrescado"
             />
-            <ItemChecklist
-              activo={!estado.proveedor?.includes('phone')}
+            <StatusCard
+              estado={!estado.proveedor?.includes('phone') ? 'activo' : 'inactivo'}
               titulo="Sin teléfono vinculado"
-              detalle="Protegido contra SIM Swapping"
+              descripcion="Protegido contra SIM Swapping"
             />
           </div>
         </div>
       </div>
 
       {/* ── Fila 2: Métricas numéricas ───────────────────────────────── */}
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6 w-full max-w-md mx-auto sm:max-w-none">
         <TarjetaMetrica
           etiqueta="Días activo"
           icono={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
             </svg>
           }
@@ -182,7 +207,7 @@ export default function MetricasDashboard() {
         <TarjetaMetrica
           etiqueta="Factores de autenticación"
           icono={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
             </svg>
           }
@@ -193,7 +218,7 @@ export default function MetricasDashboard() {
         <TarjetaMetrica
           etiqueta="Último acceso"
           icono={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           }
@@ -205,66 +230,100 @@ export default function MetricasDashboard() {
       </div>
 
       {/* ── Fila 3: Gráficos ─────────────────────────────────────────── */}
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Actividad semanal (barras) */}
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6 overflow-x-auto">
+          <figcaption className="sr-only">Gráfico de barras que muestra la actividad reciente. La tendencia indica el uso de la cuenta durante los últimos días.</figcaption>
           <h3 className="mb-1 text-sm font-semibold text-foreground">
             Actividad semanal
           </h3>
-          <p className="mb-4 text-xs text-muted">Acciones registradas por día</p>
-          <GraficoBarras datos={ACTIVIDAD_SEMANAL} alturaMax={100} />
+          <p className="mb-4 text-xs text-gray-400">Acciones registradas por día</p>
+          <div className="min-w-[300px]">
+            <GraficoBarras datos={ACTIVIDAD_SEMANAL} alturaMax={100} />
+          </div>
         </div>
 
         {/* Sesiones mensuales (curva suavizada) */}
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6 overflow-x-auto">
+          <figcaption className="sr-only">Gráfico de curva que ilustra la cantidad de sesiones mensuales. Refleja la constancia y el acceso a lo largo del tiempo.</figcaption>
           <h3 className="mb-1 text-sm font-semibold text-foreground">
             Sesiones del mes
           </h3>
-          <p className="mb-4 text-xs text-muted">
+          <p className="mb-4 text-xs text-gray-400">
             Curva Catmull-Rom → Bézier (C¹ continua)
           </p>
-          <GraficoCurva puntos={SESIONES_MES} alto={100} />
+          <div className="min-w-[300px]">
+            <GraficoCurva puntos={SESIONES_MES} alto={100} />
+          </div>
         </div>
       </div>
+
+      {/* ── Modal de Score ───────────────────────────────────────────── */}
+      {modalScoreAbierto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div 
+            role="dialog" 
+            aria-modal="true"
+            aria-labelledby="modal-score-titulo"
+            className="w-full max-w-md animate-in fade-in zoom-in-95 duration-300 rounded-2xl border border-border bg-surface p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <h2 id="modal-score-titulo" className="text-xl font-bold text-foreground">Aumenta tu Seguridad</h2>
+              <button
+                type="button"
+                onClick={() => setModalScoreAbierto(false)}
+                className="text-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent rounded-sm"
+                aria-label="Cerrar modal"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-400 mb-6">
+              Sigue estos pasos para mejorar la seguridad de tu cuenta y alcanzar una puntuación perfecta:
+            </p>
+            
+            <ul className="space-y-4 mb-6">
+              <li className="flex items-start gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-bold text-xs mt-0.5">+40</span>
+                <div>
+                  <strong className="block text-sm text-gray-200">Activa la Autenticación en dos pasos (2FA)</strong>
+                  <span className="text-xs text-gray-400">Protege tu cuenta con un código temporal además de tu contraseña.</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-bold text-xs mt-0.5">+30</span>
+                <div>
+                  <strong className="block text-sm text-gray-200">Verifica tu correo electrónico</strong>
+                  <span className="text-xs text-gray-400">Asegúrate de que podemos contactarte de forma segura.</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent font-bold text-xs mt-0.5">+10</span>
+                <div>
+                  <strong className="block text-sm text-gray-200">Mantén una sesión activa</strong>
+                  <span className="text-xs text-gray-400">Tus tokens se renuevan periódicamente.</span>
+                </div>
+              </li>
+            </ul>
+
+            <button
+              type="button"
+              onClick={() => setModalScoreAbierto(false)}
+              className="w-full rounded-md bg-accent px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-accent-light focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 /* ── Sub-componentes ──────────────────────────────────────────────────────── */
-
-function ItemChecklist({
-  activo,
-  titulo,
-  detalle,
-}: {
-  activo: boolean
-  titulo: string
-  detalle: string
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-lg border border-border-subtle bg-background px-4 py-3">
-      <div
-        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-          activo ? 'bg-success/15' : 'bg-surface-elevated'
-        }`}
-      >
-        {activo ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        )}
-      </div>
-      <div>
-        <p className="text-sm font-medium text-foreground">{titulo}</p>
-        <p className="text-xs text-muted">{detalle}</p>
-      </div>
-    </div>
-  )
-}
 
 function TarjetaMetrica({
   etiqueta,
@@ -277,7 +336,7 @@ function TarjetaMetrica({
 }) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-6">
-      <div className="mb-3 flex items-center gap-2 text-muted">
+      <div className="mb-3 flex items-center gap-2 text-gray-400">
         {icono}
         <span className="text-xs font-medium">{etiqueta}</span>
       </div>

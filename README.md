@@ -415,6 +415,9 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Contraste de Texto Mejorado**: Uso sistemático de colores legibles (`text-gray-200` y `text-gray-400`) sobre fondos oscuros, garantizando un alto ratio de contraste.
 - **Navegación por Teclado**: Elementos interactivos y tarjetas informativas (`tabIndex={0}`) incluyen bordes de foco contrastantes (`focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black`).
 - **Semántica en Íconos**: Atributo `aria-hidden="true"` implementado en gráficos decorativos (SVGs) para evitar ruido semántico en lectores de pantallas.
+- **Onboarding Guiado**: Flujo de bienvenida opcional con componente `OnboardingTour` interactivo y desenfoque de fondo (`backdrop-blur`).
+- **Dashboard Mobile-First**: Reestructuración de métricas y gráficos para pantallas pequeñas (`flex-col`, `overflow-x-auto`), manteniendo el *layout* intacto sin colapsos de texto.
+- **Métricas Estandarizadas**: Componente `StatusCard` global para presentar estados de seguridad (Activo/Inactivo) con iconografía accesible y paleta WCAG.
 
 ## Despliegue
 

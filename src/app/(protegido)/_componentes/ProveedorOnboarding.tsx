@@ -25,7 +25,12 @@ export default function ProveedorOnboarding({
   requiereOnboarding,
   children,
 }: PropsProveedor) {
-  const [mostrar, setMostrar] = useState(requiereOnboarding)
+  const [mostrar, setMostrar] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return requiereOnboarding && !sessionStorage.getItem('onboardingSkipped')
+    }
+    return requiereOnboarding
+  })
 
   return (
     <>
@@ -36,8 +41,11 @@ export default function ProveedorOnboarding({
           emailUsuario={emailUsuario}
           alCompletar={() => {
             setMostrar(false)
-            // Recargar para que el server layout refresque los datos del perfil
             window.location.reload()
+          }}
+          alOmitir={() => {
+            sessionStorage.setItem('onboardingSkipped', 'true')
+            setMostrar(false)
           }}
         />
       )}

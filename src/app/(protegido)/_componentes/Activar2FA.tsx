@@ -97,7 +97,7 @@ export default function Activar2FA({ alActivar, alCancelar }: PropiedadesActivar
     return (
       <div className="flex flex-col items-center gap-4 py-8">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-        <p className="text-sm text-muted">Generando código QR…</p>
+        <p className="text-sm text-gray-400">Generando código QR…</p>
       </div>
     )
   }
@@ -109,7 +109,7 @@ export default function Activar2FA({ alActivar, alCancelar }: PropiedadesActivar
         <h2 className="text-lg font-bold text-foreground">
           Activar autenticación en dos pasos
         </h2>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-gray-400">
           Escanea el código QR con tu aplicación autenticadora
         </p>
       </header>
@@ -128,7 +128,7 @@ export default function Activar2FA({ alActivar, alCancelar }: PropiedadesActivar
 
       {/* Secret como texto plano (fallback) */}
       <details className="rounded-lg border border-border bg-surface p-3">
-        <summary className="cursor-pointer text-xs font-medium text-muted hover:text-foreground">
+        <summary className="cursor-pointer text-xs font-medium text-gray-400 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black rounded-sm">
           ¿No puedes escanear? Ingresa el código manualmente
         </summary>
         <p className="mt-2 select-all break-all rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
@@ -162,7 +162,7 @@ export default function Activar2FA({ alActivar, alCancelar }: PropiedadesActivar
             placeholder="000000"
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            className="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] text-foreground placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+            className="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] text-foreground placeholder:text-gray-400 outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
             disabled={verificando}
           />
         </div>
@@ -181,14 +181,16 @@ export default function Activar2FA({ alActivar, alCancelar }: PropiedadesActivar
             type="button"
             onClick={alCancelar}
             disabled={verificando}
-            className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-elevated disabled:opacity-50"
+            aria-label="Cancelar activación"
+            className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-elevated disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={verificando || codigo.length !== 6}
-            className="flex-1 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Confirmar activación de dos pasos"
+            className="flex-1 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
           >
             {verificando ? 'Activando…' : 'Activar 2FA'}
           </button>

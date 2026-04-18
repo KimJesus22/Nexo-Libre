@@ -37,7 +37,8 @@ export default function BotonCerrarSesion({ accion, className }: PropsBotonCerra
       <button
         type="button"
         onClick={handleClick}
-        className={className ?? 'mt-3 rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-destructive hover:text-white hover:border-destructive sm:mt-0'}
+        aria-label="Cerrar sesión de forma segura"
+        className={className ?? 'mt-3 rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-destructive hover:text-white hover:border-destructive focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black sm:mt-0'}
       >
         Cerrar sesión
       </button>

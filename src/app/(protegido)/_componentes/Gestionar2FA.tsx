@@ -75,7 +75,7 @@ export default function Gestionar2FA() {
       <div className="rounded-2xl border border-border bg-surface p-6">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-          <span className="text-sm text-muted">Cargando configuración de seguridad…</span>
+          <span className="text-sm text-gray-400">Cargando configuración de seguridad…</span>
         </div>
       </div>
     )
@@ -107,8 +107,9 @@ export default function Gestionar2FA() {
             }`}
           >
             <svg
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-5 w-5 ${estado === 'activo' ? 'text-success' : 'text-muted'}`}
+              className={`h-5 w-5 ${estado === 'activo' ? 'text-success' : 'text-gray-400'}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -125,7 +126,7 @@ export default function Gestionar2FA() {
             <h3 className="text-sm font-semibold text-foreground">
               Autenticación en dos pasos (2FA)
             </h3>
-            <p className="mt-0.5 text-sm text-muted">
+            <p className="mt-0.5 text-sm text-gray-400">
               {estado === 'activo'
                 ? 'Tu cuenta está protegida con una aplicación autenticadora (TOTP).'
                 : 'Agrega una capa extra de seguridad con Google Authenticator, Authy u otra app.'}
@@ -137,7 +138,7 @@ export default function Gestionar2FA() {
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
             estado === 'activo'
               ? 'bg-success/10 text-success'
-              : 'bg-surface-elevated text-muted'
+              : 'bg-surface-elevated text-gray-400'
           }`}
         >
           {estado === 'activo' ? 'Activo' : 'Inactivo'}
@@ -167,7 +168,7 @@ export default function Gestionar2FA() {
                 <span className="text-sm text-foreground">
                   Autenticador TOTP
                 </span>
-                <span className="font-mono text-xs text-muted">
+                <span className="font-mono text-xs text-gray-400">
                   {factor.id.slice(0, 8)}…
                 </span>
               </div>
@@ -175,7 +176,8 @@ export default function Gestionar2FA() {
                 type="button"
                 onClick={() => desactivar(factor.id)}
                 disabled={desactivando}
-                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-destructive hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                aria-label="Desactivar autenticación de dos pasos"
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-destructive hover:bg-destructive/10 hover:text-destructive focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50"
               >
                 {desactivando ? 'Desactivando…' : 'Desactivar'}
               </button>
@@ -190,7 +192,8 @@ export default function Gestionar2FA() {
           <button
             type="button"
             onClick={() => setEstado('activando')}
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+            aria-label="Activar autenticación de dos pasos"
+            className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
           >
             Activar 2FA
           </button>

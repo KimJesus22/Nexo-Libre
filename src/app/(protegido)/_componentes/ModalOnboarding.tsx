@@ -37,6 +37,7 @@ interface PropsOnboarding {
   userId: string
   emailUsuario: string
   alCompletar: () => void
+  alOmitir: () => void
 }
 
 /* ── Debounce hook ────────────────────────────────────────────────────────── */
@@ -55,6 +56,7 @@ export default function ModalOnboarding({
   userId,
   emailUsuario,
   alCompletar,
+  alOmitir,
 }: PropsOnboarding) {
   const supabase = useRef(createClient()).current
 
@@ -250,8 +252,8 @@ export default function ModalOnboarding({
             </svg>
           </div>
           <h2 className="text-lg font-bold text-foreground">Bienvenido a NexoLibre</h2>
-          <p className="mt-1 text-sm text-muted">
-            Elige un seudónimo para identificarte de forma segura
+          <p className="mt-1 text-sm text-gray-400">
+            Tu seudónimo es cómo te verán otros sin revelar tu identidad. Elige uno para identificarte de forma segura.
           </p>
         </div>
 
@@ -396,6 +398,15 @@ export default function ModalOnboarding({
           ) : (
             'Comenzar'
           )}
+        </button>
+
+        {/* ── Botón de omitir ──────────────────────────────────────── */}
+        <button
+          type="button"
+          onClick={alOmitir}
+          className="mt-4 w-full text-center text-sm text-gray-400 bg-transparent hover:text-accent underline cursor-pointer"
+        >
+          Omitir por ahora
         </button>
 
         {/* ── Nota legal ───────────────────────────────────────────── */}

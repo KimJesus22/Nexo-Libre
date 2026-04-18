@@ -29,7 +29,7 @@ export default async function PaginaPanel() {
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Panel de control
             </h1>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-gray-400">
               {user?.email}
             </p>
           </div>
