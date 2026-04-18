@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import RegistroSW from "./_componentes/RegistroSW";
 import ScriptAnaliticas from "./_componentes/ScriptAnaliticas";
+import EasterEgg from "./_componentes/EasterEgg";
 import { Toaster } from "sonner";
 
 /* ── Tipografías ─────────────────────────────────────────────────────────── */
@@ -126,6 +127,7 @@ export default function RootLayout({
         <Toaster position="top-center" richColors theme="dark" toastOptions={{ "aria-live": "polite" } as Record<string, string>} />
         <RegistroSW />
         <ScriptAnaliticas />
+        <EasterEgg />
       </body>
     </html>
   );
