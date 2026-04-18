@@ -222,6 +222,9 @@ export default function InterfazChat() {
               enLinea={usandoReal ? estaEnLinea(chatActivoId!) : true}
               escribiendo={usandoReal ? otrosEscribiendo.length > 0 : false}
               alEscribir={usandoReal ? notificarEscribiendo : undefined}
+              hayMasAntiguos={usandoReal ? rt.hayMasAntiguos : false}
+              cargandoAntiguos={usandoReal ? rt.cargandoAntiguos : false}
+              alCargarAntiguos={usandoReal ? rt.cargarMasAntiguos : undefined}
             />
           )
         ) : (

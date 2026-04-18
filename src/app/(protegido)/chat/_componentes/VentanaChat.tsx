@@ -33,6 +33,12 @@ interface PropsVentanaChat {
   escribiendo?: boolean
   /** Callback para notificar que estoy escribiendo */
   alEscribir?: () => void
+  /** Paginación: hay más mensajes antiguos disponibles */
+  hayMasAntiguos?: boolean
+  /** Paginación: se están cargando mensajes antiguos */
+  cargandoAntiguos?: boolean
+  /** Paginación: callback para cargar más mensajes antiguos */
+  alCargarAntiguos?: () => void
 }
 
 export default function VentanaChat({
@@ -45,23 +51,37 @@ export default function VentanaChat({
   enLinea,
   escribiendo,
   alEscribir,
+  hayMasAntiguos,
+  cargandoAntiguos,
+  alCargarAntiguos,
 }: PropsVentanaChat) {
   const [texto, setTexto] = useState('')
   const [expiracion, setExpiracion] = useState<number | null>(null) // null = Nunca
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll inteligente al recibir nuevos mensajes.
   // Solo scrollea si el usuario está cerca del fondo (150px de tolerancia),
   // para no interrumpir cuando está leyendo mensajes antiguos.
   const prevMensajesLen = useRef(mensajes.length)
+  const prevScrollHeight = useRef(0)
 
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
 
     const nuevosMensajes = mensajes.length > prevMensajesLen.current
+    const seAgregaronAlInicio = prevMensajesLen.current > 0 && nuevosMensajes && prevScrollHeight.current > 0
     prevMensajesLen.current = mensajes.length
+
+    if (seAgregaronAlInicio && el.scrollTop < 50) {
+      // Preservar posición del scroll al cargar mensajes antiguos (prepend)
+      const delta = el.scrollHeight - prevScrollHeight.current
+      el.scrollTop = delta
+      prevScrollHeight.current = 0
+      return
+    }
 
     if (!nuevosMensajes) {
       // Primer render o cambio de chat → scroll directo al fondo
@@ -75,6 +95,27 @@ export default function VentanaChat({
       el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
     }
   }, [mensajes])
+
+  // Intersection Observer para paginación infinita (scroll hacia arriba)
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    const container = scrollRef.current
+    if (!sentinel || !alCargarAntiguos) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hayMasAntiguos && !cargandoAntiguos) {
+          // Guardar scrollHeight ANTES de cargar más
+          if (container) prevScrollHeight.current = container.scrollHeight
+          alCargarAntiguos()
+        }
+      },
+      { root: container, rootMargin: '100px 0px 0px 0px', threshold: 0 }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hayMasAntiguos, cargandoAntiguos, alCargarAntiguos])
 
   // Auto-resize del textarea + notificar "escribiendo..."
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -182,6 +223,24 @@ export default function VentanaChat({
           </div>
         ) : (
           <div className="flex flex-col gap-1">
+
+            {/* Sentinel de paginación (invisible, al tope del scroll) */}
+            <div ref={sentinelRef} className="h-1 w-full shrink-0" aria-hidden="true" />
+
+            {/* Indicador de carga de mensajes antiguos */}
+            {cargandoAntiguos && (
+              <div className="flex justify-center py-3">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+              </div>
+            )}
+
+            {/* Indicador de que hay más mensajes arriba */}
+            {hayMasAntiguos && !cargandoAntiguos && (
+              <div className="flex justify-center py-2">
+                <span className="text-[10px] text-muted">Desliza arriba para ver más</span>
+              </div>
+            )}
+
             {mensajes.map((msg, i) => {
               const inicioSerie = esInicioDeSerie(i)
               return (

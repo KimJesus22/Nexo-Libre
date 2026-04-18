@@ -87,6 +87,11 @@ function generarIniciales(nombre: string | null): string {
     .join('')
 }
 
+/* ── Constantes ───────────────────────────────────────────────────────────── */
+
+/** Mensajes por página (cursor-based pagination) */
+const PAGE_SIZE = 50
+
 /* ── Hook principal ───────────────────────────────────────────────────────── */
 
 export function useChatRealtime() {
@@ -104,6 +109,11 @@ export function useChatRealtime() {
   const [chatActivoId, setChatActivoId] = useState<string | null>(null)
   const [mensajes, setMensajes] = useState<Mensaje[]>([])
   const [cargandoMensajes, setCargandoMensajes] = useState(false)
+
+  // Estado de paginación
+  const [hayMasAntiguos, setHayMasAntiguos] = useState(false)
+  const [cargandoAntiguos, setCargandoAntiguos] = useState(false)
+  const cursorRef = useRef<string | null>(null) // ISO timestamp del mensaje más antiguo cargado
 
   // Cache de nombres de usuario por ID
   const nombresCache = useRef<Record<string, string>>({})
@@ -190,30 +200,13 @@ export function useChatRealtime() {
     if (userId) cargarChats()
   }, [userId, cargarChats])
 
-  /* ── 3. Cargar mensajes del chat activo ──────────────────────────────── */
-  const cargarMensajes = useCallback(async (chatId: string) => {
-    if (!userId) return
-    setCargandoMensajes(true)
-
-    const { data: mensajesDB } = await supabase
-      .from('mensajes')
-      .select('*')
-      .eq('chat_id', chatId)
-      .order('creado_en', { ascending: true })
-      .limit(100)
-
-    if (!mensajesDB) {
-      setMensajes([])
-      setCargandoMensajes(false)
-      return
-    }
-
-    // Resolver nombres de autores que no estén en cache
+  /* ── Helper: resolver nombres + descifrar ────────────────────────────── */
+  const resolverNombres = useCallback(async (mensajesDB: MensajeDB[]) => {
     const idsDesconocidos = [
       ...new Set(
         mensajesDB
-          .map((m: MensajeDB) => m.autor_id)
-          .filter((id: string) => !nombresCache.current[id])
+          .map((m) => m.autor_id)
+          .filter((id) => !nombresCache.current[id])
       ),
     ]
 
@@ -227,14 +220,15 @@ export function useChatRealtime() {
         nombresCache.current[p.id] = p.nombre_completo ?? p.nombre_usuario ?? 'Anónimo'
       })
     }
+  }, [supabase])
 
-    // Obtener o crear clave E2EE para este chat
-    const clave = await obtenerOCrearClaveChat(chatId, userId)
-    claveE2EE.current = clave
-
-    // Descifrar mensajes (compatible con mensajes legacy sin cifrar)
-    const mensajesMapeados: Mensaje[] = await Promise.all(
-      mensajesDB.map(async (m: MensajeDB) => {
+  const descifrarYMapear = useCallback(async (
+    mensajesDB: MensajeDB[],
+    clave: CryptoKey,
+    uid: string
+  ): Promise<Mensaje[]> => {
+    return Promise.all(
+      mensajesDB.map(async (m) => {
         let contenidoDescifrado = m.contenido
         if (esMensajeCifrado(m.contenido)) {
           try {
@@ -249,14 +243,91 @@ export function useChatRealtime() {
           autorNombre: nombresCache.current[m.autor_id] ?? 'Anónimo',
           contenido: contenidoDescifrado,
           creadoEn: formatearHora(m.creado_en),
-          esMio: m.autor_id === userId,
+          esMio: m.autor_id === uid,
         }
       })
     )
+  }, [])
+
+  /* ── 3. Cargar mensajes iniciales (últimos PAGE_SIZE) ────────────────── */
+  const cargarMensajes = useCallback(async (chatId: string) => {
+    if (!userId) return
+    setCargandoMensajes(true)
+    cursorRef.current = null
+    setHayMasAntiguos(false)
+
+    // Traer los últimos PAGE_SIZE mensajes (desc) y revertir para orden cronológico
+    const { data: mensajesDB } = await supabase
+      .from('mensajes')
+      .select('*')
+      .eq('chat_id', chatId)
+      .order('creado_en', { ascending: false })
+      .limit(PAGE_SIZE)
+
+    if (!mensajesDB || mensajesDB.length === 0) {
+      setMensajes([])
+      setCargandoMensajes(false)
+      return
+    }
+
+    // Revertir a orden cronológico (más antiguo primero)
+    const cronologico = mensajesDB.reverse()
+
+    // Si recibimos exactamente PAGE_SIZE, probablemente hay más antiguos
+    setHayMasAntiguos(mensajesDB.length === PAGE_SIZE)
+
+    // Guardar cursor: timestamp del mensaje más antiguo
+    cursorRef.current = cronologico[0].creado_en
+
+    await resolverNombres(cronologico)
+
+    // Obtener o crear clave E2EE para este chat
+    const clave = await obtenerOCrearClaveChat(chatId, userId)
+    claveE2EE.current = clave
+
+    const mensajesMapeados = await descifrarYMapear(cronologico, clave, userId)
 
     setMensajes(mensajesMapeados)
     setCargandoMensajes(false)
-  }, [userId, supabase])
+  }, [userId, supabase, resolverNombres, descifrarYMapear])
+
+  /* ── 3b. Cargar página anterior (scroll hacia arriba) ───────────────── */
+  const cargarMasAntiguos = useCallback(async () => {
+    if (!chatActivoId || !userId || !cursorRef.current || cargandoAntiguos) return
+    setCargandoAntiguos(true)
+
+    const { data: mensajesDB } = await supabase
+      .from('mensajes')
+      .select('*')
+      .eq('chat_id', chatActivoId)
+      .lt('creado_en', cursorRef.current)
+      .order('creado_en', { ascending: false })
+      .limit(PAGE_SIZE)
+
+    if (!mensajesDB || mensajesDB.length === 0) {
+      setHayMasAntiguos(false)
+      setCargandoAntiguos(false)
+      return
+    }
+
+    const cronologico = mensajesDB.reverse()
+    setHayMasAntiguos(mensajesDB.length === PAGE_SIZE)
+    cursorRef.current = cronologico[0].creado_en
+
+    await resolverNombres(cronologico)
+
+    const clave = claveE2EE.current
+    if (!clave) {
+      setCargandoAntiguos(false)
+      return
+    }
+
+    const nuevos = await descifrarYMapear(cronologico, clave, userId)
+
+    // Prepend: insertar al inicio manteniendo el orden cronológico
+    setMensajes((prev) => [...nuevos, ...prev])
+    setCargandoAntiguos(false)
+  }, [chatActivoId, userId, cargandoAntiguos, supabase, resolverNombres, descifrarYMapear])
 
   /* ── 4. Suscripción Realtime (INSERT en mensajes) ───────────────────── */
   useEffect(() => {
@@ -427,12 +498,16 @@ export function useChatRealtime() {
   const seleccionarChat = useCallback((id: string) => {
     setChatActivoId(id)
     setMensajes([])
+    cursorRef.current = null
+    setHayMasAntiguos(false)
     claveE2EE.current = null // Reset clave E2EE del chat anterior
   }, [])
 
   const volverALista = useCallback(() => {
     setChatActivoId(null)
     setMensajes([])
+    cursorRef.current = null
+    setHayMasAntiguos(false)
     claveE2EE.current = null
   }, [])
 
@@ -443,6 +518,9 @@ export function useChatRealtime() {
     chatActivoId,
     mensajes,
     cargandoMensajes,
+    hayMasAntiguos,
+    cargandoAntiguos,
+    cargarMasAntiguos,
     seleccionarChat,
     volverALista,
     enviarMensaje,
