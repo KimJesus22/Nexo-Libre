@@ -42,7 +42,7 @@ export default function SkeletonChats() {
 
       {/* Lista skeleton */}
       <div className="flex-1 divide-y divide-border-subtle">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 5 }).map((_, i) => (
           <SkeletonChatItem key={i} />
         ))}
       </div>
