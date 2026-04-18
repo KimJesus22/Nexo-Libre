@@ -32,19 +32,55 @@ export const viewport: Viewport = {
 /* ── Metadatos globales (SEO + PWA) ──────────────────────────────────────── */
 export const metadata: Metadata = {
   title: {
-    default: "NexoLibre",
+    default: "NexoLibre | Privacidad Inquebrantable",
     template: "%s | NexoLibre",
   },
   description:
-    "Plataforma de mensajería cifrada de extremo a extremo. Comunicación segura sin intermediarios.",
+    "Plataforma de mensajería segura con cifrado de extremo a extremo real. Sin números de teléfono, sin recolección de datos. Tu privacidad no es negociable.",
   metadataBase: new URL("https://nexolibre.app"),
   manifest: "/manifest.json",
+  keywords: ["mensajería segura", "privacidad", "e2ee", "chat anónimo", "sin número de teléfono", "cifrado", "opensource"],
+  authors: [{ name: "NexoLibre" }],
+  creator: "NexoLibre",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 
   /* ── Open Graph ────────────────────────────────────────────────────────── */
   openGraph: {
     type: "website",
     locale: "es_MX",
+    url: "https://nexolibre.app",
     siteName: "NexoLibre",
+    title: "NexoLibre | Privacidad Inquebrantable",
+    description:
+      "Plataforma de mensajería segura con cifrado de extremo a extremo real. Sin números de teléfono, sin recolección de datos.",
+    images: [
+      {
+        url: "/api/og", // Ruta dinámica para generación de imagen
+        width: 1200,
+        height: 630,
+        alt: "NexoLibre - Privacidad Inquebrantable",
+      },
+    ],
+  },
+
+  /* ── Twitter Cards ─────────────────────────────────────────────────────── */
+  twitter: {
+    card: "summary_large_image",
+    title: "NexoLibre | Privacidad Inquebrantable",
+    description:
+      "Plataforma de mensajería segura E2EE. Comunícate de forma verdaderamente privada sin asociar tu número de teléfono.",
+    creator: "@NexoLibre",
+    images: ["/api/og"],
   },
 
   /* ── Apple PWA (Safari iOS) ────────────────────────────────────────────── */
