@@ -194,7 +194,10 @@ export default function InterfazChat() {
             chats={chatsVisibles}
             chatActivoId={chatActivoId}
             alSeleccionar={seleccionarChat}
-            alCrearChat={() => {}}
+            alCrearChat={() => {
+              const input = document.getElementById('search-chat-input') as HTMLInputElement | null
+              input?.focus()
+            }}
             busqueda={busqueda}
             alBuscar={setBusqueda}
             estaEnLinea={usandoReal ? (chatId: string) => estaEnLinea(chatId) : undefined}

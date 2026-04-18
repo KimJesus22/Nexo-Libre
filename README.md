@@ -429,6 +429,7 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Búsqueda de Chat Reestructurada**: Barra de búsqueda refactorizada de posicionamiento absoluto a `flex items-center`, eliminando la superposición entre el ícono de lupa y el texto del input.
 - **Botón de Purga Sólido**: Acción destructiva de datos convertida a un botón rojo prominente (`bg-red-600`) con ancho completo en móvil (`w-full sm:w-auto`), imposible de confundir con un enlace de texto.
 - **Lint Zero (React 19 Compiler)**: Resolución de 34 errores/warnings del linter de React 19 Compiler (`react-hooks/refs`, `set-state-in-effect`, `immutability`, `preserve-manual-memoization`). Migración de `useRef(createClient()).current` a `useMemo`, reordenamiento de hooks para evitar acceso antes de declaración, y eliminación de variables/imports no usados.
+- **Botón Redactar Funcional**: El ícono de lápiz (✏️) en el header del sidebar de Chat dejó de ser un noop y ahora enfoca automáticamente la barra de búsqueda (`#search-chat-input`), con `cursor-pointer` y clases de accesibilidad (`focus:ring-2`, `hover:text-accent`).
 
 ### Rutas de la aplicación
 
