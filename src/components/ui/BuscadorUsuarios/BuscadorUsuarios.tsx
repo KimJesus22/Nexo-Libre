@@ -75,7 +75,7 @@ export default function BuscadorUsuarios({
   excluirIds = [],
   placeholder = 'ID alfanumérico o correo exacto…',
 }: PropsBuscadorUsuarios) {
-  const supabase = useRef(createClient()).current
+  const supabaseRef = useRef(createClient())
 
   const [consulta, setConsulta] = useState('')
   const [resultados, setResultados] = useState<UsuarioEncontrado[]>([])
@@ -88,14 +88,16 @@ export default function BuscadorUsuarios({
 
   // Obtener ID del usuario actual (para excluirse)
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabaseRef.current.auth.getUser().then(({ data: { user } }) => {
       if (user) setUserId(user.id)
     })
-  }, [supabase])
+  }, [])
 
   /* ── Ejecutar búsqueda ──────────────────────────────────────────────── */
   const buscar = useCallback(
     async (q: string) => {
+      const supabase = supabaseRef.current
+
       if (!q || q.length < 3) {
         setResultados([])
         setError(null)
@@ -129,7 +131,7 @@ export default function BuscadorUsuarios({
           // Para búsqueda por correo real, necesitamos una función server-side segura
           // Por ahora, mostramos un mensaje si no hay resultados directos
           if (perfiles && perfiles.length > 0) {
-            const encontrados: UsuarioEncontrado[] = perfiles
+            perfiles
               .filter((p: { id: string }) => {
                 if (p.id === userId) return false
                 if (excluirIds.includes(p.id)) return false
@@ -217,12 +219,13 @@ export default function BuscadorUsuarios({
         setBuscando(false)
       }
     },
-    [supabase, userId, excluirIds]
+    [userId, excluirIds]
   )
 
   // Disparar búsqueda cuando cambia el valor debounced
   useEffect(() => {
-    buscar(consultaDebounced)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- debounced search trigger
+    void buscar(consultaDebounced)
   }, [consultaDebounced, buscar])
 
   /* ── Generar iniciales ──────────────────────────────────────────────── */

@@ -87,7 +87,7 @@ export default function RootLayout({
     >
       <body>
         {children}
-        <Toaster position="top-center" richColors theme="dark" toastOptions={{ "aria-live": "polite" } as any} />
+        <Toaster position="top-center" richColors theme="dark" toastOptions={{ "aria-live": "polite" } as Record<string, string>} />
         <RegistroSW />
         <ScriptAnaliticas />
       </body>

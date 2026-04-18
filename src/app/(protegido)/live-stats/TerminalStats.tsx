@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 export default function TerminalStats() {
-  const supabase = useRef(createClient()).current
+  const supabase = useMemo(() => createClient(), [])
   const canalRef = useRef<RealtimeChannel | null>(null)
   
   const [usuariosOnline, setUsuariosOnline] = useState<number>(0)
@@ -36,10 +36,10 @@ export default function TerminalStats() {
           return count
         })
       })
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+      .on('presence', { event: 'join' }, ({ key }) => {
         addLog(`JOIN: ${key.slice(0, 8)}...`)
       })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+      .on('presence', { event: 'leave' }, ({ key }) => {
         addLog(`LEAVE: ${key.slice(0, 8)}...`)
       })
       .subscribe(async (status) => {

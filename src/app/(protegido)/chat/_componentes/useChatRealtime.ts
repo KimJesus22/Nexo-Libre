@@ -17,7 +17,7 @@
  *    - Supabase NUNCA ve texto plano
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import type { ChatResumen } from './BarraLateralChats'
@@ -50,12 +50,6 @@ interface ChatDB {
   actualizado_en: string
 }
 
-interface ParticipanteDB {
-  chat_id: string
-  usuario_id: string
-  rol: string
-  unido_en: string
-}
 
 /* ── Utilidades ───────────────────────────────────────────────────────────── */
 
@@ -96,7 +90,7 @@ const PAGE_SIZE = 50
 /* ── Hook principal ───────────────────────────────────────────────────────── */
 
 export function useChatRealtime() {
-  const supabase = useRef(createClient()).current
+  const supabase = useMemo(() => createClient(), [])
   const canalRef = useRef<RealtimeChannel | null>(null)
 
   // Estado del usuario
@@ -201,6 +195,7 @@ export function useChatRealtime() {
   }, [userId, supabase])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load on userId change
     if (userId) cargarChats()
   }, [userId, cargarChats])
 
@@ -338,6 +333,7 @@ export function useChatRealtime() {
     if (!chatActivoId || !userId) return
 
     // Cargar mensajes existentes
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- load messages when active chat changes
     cargarMensajes(chatActivoId)
 
     // Suscribirse a nuevos mensajes del chat activo

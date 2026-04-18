@@ -7,7 +7,7 @@
  * del 2FA y permite activar/desactivar.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Activar2FA from './Activar2FA'
@@ -30,6 +30,8 @@ export default function Gestionar2FA() {
   const router = useRouter()
 
   /* ── Cargar factores existentes ─────────────────────────────────────── */
+  const cargadoRef = useRef(false)
+
   const cargarFactores = useCallback(async () => {
     const { data, error } = await supabase.auth.mfa.listFactors()
 
@@ -46,7 +48,10 @@ export default function Gestionar2FA() {
   }, [])
 
   useEffect(() => {
-    cargarFactores()
+    if (!cargadoRef.current) {
+      cargadoRef.current = true
+      void cargarFactores()
+    }
   }, [cargarFactores])
 
   /* ── Desactivar 2FA ─────────────────────────────────────────────────── */

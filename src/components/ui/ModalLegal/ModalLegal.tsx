@@ -145,8 +145,10 @@ export default function ModalLegal({
   const doc = CONTENIDO_LEGAL[tipo]
 
   /* ── Reset al abrir ─────────────────────────────────────────────────── */
+  // Sincronizar estado del scroll y body overflow con la prop 'abierto'
   useEffect(() => {
     if (abierto) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset modal state when prop changes
       setLeido(false)
       setProgresoScroll(0)
       // Bloquear scroll del body

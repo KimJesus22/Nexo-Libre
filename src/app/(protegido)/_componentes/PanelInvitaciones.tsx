@@ -46,6 +46,7 @@ export default function PanelInvitaciones() {
     setCargando(false)
   }, [])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch
   useEffect(() => { cargar() }, [cargar])
 
   // Generar nueva invitación

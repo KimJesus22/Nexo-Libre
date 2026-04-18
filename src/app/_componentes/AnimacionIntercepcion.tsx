@@ -21,6 +21,7 @@ import { useState, useEffect } from 'react'
 
 const MENSAJE_PLANO = 'Mi contraseña es: Carlos1987'
 const MENSAJE_CIFRADO = 'e2ee:aX2k9.BvR4mN8xQ7wL3j...'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for documentation of decryption flow
 const MENSAJE_DESCIFRADO = 'Mi contraseña es: Carlos1987'
 
 const FASES = [

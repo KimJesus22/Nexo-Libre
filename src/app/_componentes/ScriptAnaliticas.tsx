@@ -24,6 +24,7 @@ export default function ScriptAnaliticas() {
     if (window.location.hostname === 'localhost') return
     if (navigator.doNotTrack === '1') return
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync with browser APIs (DNT, hostname)
     setMontar(true)
   }, [])
 

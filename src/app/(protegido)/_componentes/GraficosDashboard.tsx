@@ -18,7 +18,7 @@
  *    El stroke-dasharray simula progreso radial.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 /* ── Funciones de easing (cálculo diferencial) ────────────────────────────── */
 
@@ -231,17 +231,17 @@ export function GraficoCurva({ puntos, ancho = 300, alto = 80 }: GraficoCurvaPro
   const frameRef = useRef<number>(0)
   const inicioRef = useRef<number | null>(null)
 
-  const animar = useCallback((timestamp: number) => {
-    if (inicioRef.current === null) inicioRef.current = timestamp
-    const t = Math.min((timestamp - inicioRef.current) / 2000, 1)
-    setProgreso(easeOutQuad(t))
-    if (t < 1) frameRef.current = requestAnimationFrame(animar)
-  }, [])
-
   useEffect(() => {
+    function animar(timestamp: number) {
+      if (inicioRef.current === null) inicioRef.current = timestamp
+      const t = Math.min((timestamp - inicioRef.current) / 2000, 1)
+      setProgreso(easeOutQuad(t))
+      if (t < 1) frameRef.current = requestAnimationFrame(animar)
+    }
+
     frameRef.current = requestAnimationFrame(animar)
     return () => cancelAnimationFrame(frameRef.current)
-  }, [animar])
+  }, [])
 
   if (puntos.length < 2) return null
 

@@ -25,7 +25,7 @@ export default function BotonPanico() {
     try {
       localStorage.clear()
       sessionStorage.clear()
-    } catch (e) {
+    } catch {
       // Ignorar errores si hay restricciones del navegador
     }
 

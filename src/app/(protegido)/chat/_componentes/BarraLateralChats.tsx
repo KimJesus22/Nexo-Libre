@@ -7,7 +7,7 @@
  * En mobile se muestra como pantalla completa; en desktop como sidebar fija.
  */
 
-import { useState } from 'react'
+
 
 export interface ChatResumen {
   id: string

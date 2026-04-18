@@ -42,6 +42,7 @@ const PREFIJOS_PROTEGIDOS: readonly string[] = [
 /**
  * Determina si una ruta es pública (no requiere autenticación)
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Documentación de lógica de dominio, usada implícitamente por esRutaProtegida
 function esRutaPublica(pathname: string): boolean {
   // Coincidencia exacta
   if (RUTAS_PUBLICAS.includes(pathname)) return true

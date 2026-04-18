@@ -20,7 +20,7 @@
  *   channel.untrack() → deja de trackear
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
@@ -41,7 +41,7 @@ interface PresenciaChatPayload {
 /* ── Hook de presencia global (online/offline) ────────────────────────────── */
 
 export function usePresenciaGlobal(userId: string | null) {
-  const supabase = useRef(createClient()).current
+  const supabase = useMemo(() => createClient(), [])
   const canalRef = useRef<RealtimeChannel | null>(null)
   const [usuariosEnLinea, setUsuariosEnLinea] = useState<Set<string>>(new Set())
 
@@ -102,7 +102,7 @@ export function useEscribiendo(
   userId: string | null,
   chatId: string | null
 ) {
-  const supabase = useRef(createClient()).current
+  const supabase = useMemo(() => createClient(), [])
   const canalRef = useRef<RealtimeChannel | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -110,6 +110,7 @@ export function useEscribiendo(
 
   useEffect(() => {
     if (!userId || !chatId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync with presence channel state
       setOtrosEscribiendo([])
       return
     }

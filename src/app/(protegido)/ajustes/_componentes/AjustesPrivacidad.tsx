@@ -60,6 +60,7 @@ export default function AjustesPrivacidad() {
 
   // Cargar preferencias al montar
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync with localStorage
     setPrefs(obtenerPreferencias())
   }, [])
 

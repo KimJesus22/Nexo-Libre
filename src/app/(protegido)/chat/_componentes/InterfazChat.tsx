@@ -107,7 +107,7 @@ export default function InterfazChat() {
 
   // Indicador "escribiendo..." para el chat activo
   const chatActivoIdReal = rt.chatActivoId
-  const { otrosEscribiendo, notificarEscribiendo, detenerEscribiendo } =
+  const { otrosEscribiendo, notificarEscribiendo } =
     useEscribiendo(rt.userId, chatActivoIdReal)
 
   // Estado para demo (fallback si no hay chats reales)

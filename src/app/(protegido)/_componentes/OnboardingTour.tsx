@@ -9,6 +9,7 @@ export default function OnboardingTour() {
   useEffect(() => {
     // Evitamos mostrar el tour en SSR y lo mostramos solo si no fue cerrado en esta sesión
     if (!sessionStorage.getItem('onboardingTourVisto')) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync with sessionStorage
       setMostrar(true)
     }
   }, [])

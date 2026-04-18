@@ -24,7 +24,7 @@
  *   - Límite: 2MB, JPEG/PNG/WebP/GIF
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 /* ── Constantes ───────────────────────────────────────────────────────────── */
@@ -58,7 +58,7 @@ export default function ModalOnboarding({
   alCompletar,
   alOmitir,
 }: PropsOnboarding) {
-  const supabase = useRef(createClient()).current
+  const supabase = useMemo(() => createClient(), [])
 
   // Estado del formulario
   const [username, setUsername] = useState('')
@@ -106,6 +106,7 @@ export default function ModalOnboarding({
   /* ── Validar username en tiempo real ────────────────────────────────── */
   useEffect(() => {
     if (!username) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- validation sync with debounced external input
       setErrorUsername(null)
       return
     }
@@ -265,6 +266,7 @@ export default function ModalOnboarding({
             className="group relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-dashed border-border bg-surface-elevated transition-all hover:border-accent"
           >
             {previewAvatar ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- blob URL from file input, incompatible with next/image */
               <img
                 src={previewAvatar}
                 alt="Preview avatar"

@@ -19,7 +19,7 @@
  * - Compatible con el Modo Efímero (localStorage.clear())
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 /* ── Tipos ────────────────────────────────────────────────────────────────── */
@@ -70,7 +70,7 @@ function limpiarCola(): void {
 /* ── Hook principal ───────────────────────────────────────────────────────── */
 
 export function useColaOffline() {
-  const supabase = useRef(createClient()).current
+  const supabase = useMemo(() => createClient(), [])
   const [enLinea, setEnLinea] = useState(true)
   const [pendientes, setPendientes] = useState(0)
   const [enviando, setEnviando] = useState(false)
@@ -79,32 +79,9 @@ export function useColaOffline() {
   // Inicializar estado de red
   useEffect(() => {
     if (typeof window === 'undefined') return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync with browser navigator.onLine
     setEnLinea(navigator.onLine)
     setPendientes(leerCola().length)
-  }, [])
-
-  // Escuchar cambios de conectividad
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const handleOnline = () => {
-      setEnLinea(true)
-      // Flush automático al reconectarse
-      flushCola()
-    }
-
-    const handleOffline = () => {
-      setEnLinea(false)
-    }
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /**
@@ -158,6 +135,29 @@ export function useColaOffline() {
     setEnviando(false)
     flushingRef.current = false
   }, [supabase])
+
+  // Escuchar cambios de conectividad
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleOnline = () => {
+      setEnLinea(true)
+      // Flush automático al reconectarse
+      flushCola()
+    }
+
+    const handleOffline = () => {
+      setEnLinea(false)
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [flushCola])
 
   /**
    * Limpiar toda la cola (ej. al cerrar sesión o purga manual)
