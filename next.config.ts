@@ -30,8 +30,8 @@ const cspDirectives = [
 
   // Scripts: self + inline (Next.js requiere inline scripts para hidratación)
   // TODO: migrar a nonces cuando Next.js lo soporte nativamente con Turbopack
-  // cloud.umami.is: analíticas privacy-first (sin cookies, sin fingerprinting)
-  "script-src 'self' 'unsafe-inline' https://cloud.umami.is",
+  // En desarrollo, React requiere 'unsafe-eval' para sourcemaps y fast refresh.
+  `script-src 'self' 'unsafe-inline' https://cloud.umami.is ${process.env.NODE_ENV !== 'production' ? "'unsafe-eval'" : ""}`,
 
   // Estilos: self + inline (requerido por Tailwind CSS y Next.js)
   "style-src 'self' 'unsafe-inline'",
