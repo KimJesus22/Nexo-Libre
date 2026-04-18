@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import RegistroSW from "./_componentes/RegistroSW";
+import ScriptAnaliticas from "./_componentes/ScriptAnaliticas";
 
 /* ── Tipografías ─────────────────────────────────────────────────────────── */
 const geistSans = Geist({
@@ -86,6 +87,7 @@ export default function RootLayout({
       <body>
         {children}
         <RegistroSW />
+        <ScriptAnaliticas />
       </body>
     </html>
   );

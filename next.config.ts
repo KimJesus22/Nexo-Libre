@@ -30,13 +30,14 @@ const cspDirectives = [
 
   // Scripts: self + inline (Next.js requiere inline scripts para hidratación)
   // TODO: migrar a nonces cuando Next.js lo soporte nativamente con Turbopack
-  "script-src 'self' 'unsafe-inline'",
+  // cloud.umami.is: analíticas privacy-first (sin cookies, sin fingerprinting)
+  "script-src 'self' 'unsafe-inline' https://cloud.umami.is",
 
   // Estilos: self + inline (requerido por Tailwind CSS y Next.js)
   "style-src 'self' 'unsafe-inline'",
 
-  // Conexiones: self + Supabase API + Supabase Realtime (wss://)
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  // Conexiones: self + Supabase API + Supabase Realtime (wss://) + Umami analíticas
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cloud.umami.is",
 
   // Imágenes: self + blobs (preview avatar) + data URIs + Supabase Storage
   "img-src 'self' blob: data: https://*.supabase.co",
