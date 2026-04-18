@@ -26,6 +26,7 @@ import {
   esquemaRegistro,
   validarFormData,
 } from '@/lib/validacion'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 /* ── Magic Link ──────────────────────────────────────────────────────────── */
 
@@ -35,6 +36,12 @@ export async function iniciarSesionConMagicLink(formData: FormData) {
 
   if (!resultado.success) {
     return { error: resultado.error }
+  }
+
+  // Rate Limiting: Máximo 3 intentos por IP cada 15 minutos
+  const rateLimit = await checkRateLimit('magic_link', 3, 15)
+  if (!rateLimit.ok) {
+    return { error: rateLimit.error }
   }
 
   const supabase = await createClient()

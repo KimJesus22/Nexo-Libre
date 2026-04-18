@@ -21,6 +21,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { randomBytes } from 'crypto'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 /* ── Constantes ───────────────────────────────────────────────────────────── */
 const MAX_INVITACIONES_ACTIVAS = 5
@@ -36,6 +37,12 @@ export async function crearInvitacion(): Promise<
 
   if (!user) {
     return { ok: false, error: 'Debes iniciar sesión para generar invitaciones.' }
+  }
+
+  // Rate Limiting: Máximo 3 intentos por IP cada 15 minutos (anti-spam de peticiones)
+  const rateLimit = await checkRateLimit('crear_invitacion', 3, 15)
+  if (!rateLimit.ok) {
+    return { ok: false, error: rateLimit.error as string }
   }
 
   // Verificar límite de invitaciones activas (no usadas y no expiradas)

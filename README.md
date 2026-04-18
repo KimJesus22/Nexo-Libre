@@ -431,6 +431,7 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Lint Zero (React 19 Compiler)**: Resolución de 34 errores/warnings del linter de React 19 Compiler (`react-hooks/refs`, `set-state-in-effect`, `immutability`, `preserve-manual-memoization`). Migración de `useRef(createClient()).current` a `useMemo`, reordenamiento de hooks para evitar acceso antes de declaración, y eliminación de variables/imports no usados.
 - **Botón Redactar Funcional**: El ícono de lápiz (✏️) en el header del sidebar de Chat dejó de ser un noop y ahora enfoca automáticamente la barra de búsqueda (`#search-chat-input`), con `cursor-pointer` y clases de accesibilidad (`focus:ring-2`, `hover:text-accent`).
 - **SEO y Metadatos Dinámicos**: Implementación completa de metadatos SEO en `layout.tsx` para Next.js 15, incluyendo OpenGraph y Twitter Cards con el título "NexoLibre | Privacidad Inquebrantable" y ruta configurada para generación dinámica de imágenes de previsualización (`/api/og`).
+- **DevSecOps: Rate Limiting Nativo**: Implementación de un sistema ligero de Rate Limiting por IP utilizando Supabase (Tabla + Función RPC con `SECURITY DEFINER`). Protege las Server Actions críticas (`crearInvitacion` y `iniciarSesionConMagicLink`), limitando a 3 solicitudes por ventana de 15 minutos para mitigar ataques de fuerza bruta y spam.
 
 ### Rutas de la aplicación
 
