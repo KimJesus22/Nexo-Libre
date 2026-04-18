@@ -53,7 +53,7 @@ export default function BarraLateralChats({
         <button
           type="button"
           onClick={alCrearChat}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-elevated hover:text-accent"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-surface-elevated hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent"
           aria-label="Nuevo chat"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -63,17 +63,18 @@ export default function BarraLateralChats({
       </header>
 
       {/* ── Búsqueda ───────────────────────────────────────────────── */}
-      <div className="shrink-0 border-b border-border-subtle px-3 py-2">
+      <div className="shrink-0 border-b border-border-subtle px-3 py-3">
         <div className="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
           <input
+            id="search-chat-input"
             type="text"
             value={busqueda}
             onChange={(e) => alBuscar(e.target.value)}
             placeholder="Buscar conversación…"
-            className="w-full rounded-lg border border-border-subtle bg-background py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted outline-none transition-colors focus:border-accent"
+            className="w-full rounded-md border border-border-subtle bg-gray-800 py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-gray-400 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent"
           />
         </div>
       </div>
@@ -85,7 +86,7 @@ export default function BarraLateralChats({
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
             </svg>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-gray-400">
               {busqueda ? 'Sin resultados' : 'Aún no tienes chats'}
             </p>
           </div>
@@ -96,7 +97,7 @@ export default function BarraLateralChats({
                 <button
                   type="button"
                   onClick={() => alSeleccionar(chat.id)}
-                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+                  className={`flex w-full items-center gap-3 p-4 min-h-[56px] text-left transition-colors ${
                     chatActivoId === chat.id
                       ? 'bg-accent/10 border-l-2 border-l-accent'
                       : 'hover:bg-surface-elevated border-l-2 border-l-transparent'
@@ -126,13 +127,13 @@ export default function BarraLateralChats({
                         {chat.nombre ?? 'Chat directo'}
                       </span>
                       {chat.ultimaFecha && (
-                        <span className="ml-2 shrink-0 text-[10px] text-muted">
+                        <span className="ml-2 shrink-0 text-[10px] text-gray-400">
                           {chat.ultimaFecha}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="truncate text-xs text-muted">
+                      <p className="truncate text-xs text-gray-400">
                         {chat.ultimoMensaje ?? 'Sin mensajes aún'}
                       </p>
                       {chat.sinLeer > 0 && (
@@ -147,6 +148,21 @@ export default function BarraLateralChats({
             ))}
           </ul>
         )}
+      </div>
+
+      {/* ── Botón Flotante (Móvil) ─────────────────────────────────── */}
+      <div className="md:hidden">
+        <button
+          type="button"
+          onClick={alCrearChat}
+          aria-label="Iniciar nuevo chat"
+          title="Iniciar nuevo chat"
+          className="fixed bottom-4 right-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-black shadow-lg transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black z-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
       </div>
     </aside>
   )

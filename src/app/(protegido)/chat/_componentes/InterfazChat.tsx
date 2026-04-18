@@ -239,10 +239,17 @@ export default function InterfazChat() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">NexoLibre Chat</h3>
-              <p className="mt-1 text-sm text-muted">
-                Selecciona una conversación para comenzar
+              <p className="mt-1 text-gray-400">
+                Selecciona una conversación para comenzar o busca a un usuario
               </p>
             </div>
+            <button
+              type="button"
+              onClick={() => document.getElementById('search-chat-input')?.focus()}
+              className="mt-4 bg-accent text-black px-6 py-3 rounded-lg hover:bg-accent-light transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
+            >
+              Comenzar chat
+            </button>
           </div>
         )}
       </div>

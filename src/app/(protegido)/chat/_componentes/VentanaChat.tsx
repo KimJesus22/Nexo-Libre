@@ -166,7 +166,7 @@ export default function VentanaChat({
         <button
           type="button"
           onClick={alVolver}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-elevated hover:text-foreground md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-surface-elevated hover:text-foreground md:hidden focus:outline-none focus:ring-2 focus:ring-accent"
           aria-label="Volver a chats"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -196,14 +196,14 @@ export default function VentanaChat({
           ) : enLinea ? (
             <p className="text-[11px] text-success">En línea</p>
           ) : (
-            <p className="text-[11px] text-muted">Desconectado</p>
+            <p className="text-[11px] text-gray-400">Desconectado</p>
           )}
         </div>
 
         {/* Menú */}
         <button
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-elevated hover:text-foreground"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-surface-elevated hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
           aria-label="Opciones del chat"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -248,7 +248,7 @@ export default function VentanaChat({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
               </svg>
             </div>
-            <p className="text-sm text-muted">Envía el primer mensaje</p>
+            <p className="text-sm text-gray-400">Envía el primer mensaje</p>
           </div>
         ) : (
           <div className="flex flex-col gap-1">
@@ -266,7 +266,7 @@ export default function VentanaChat({
             {/* Indicador de que hay más mensajes arriba */}
             {hayMasAntiguos && !cargandoAntiguos && (
               <div className="flex justify-center py-2">
-                <span className="text-[10px] text-muted">Desliza arriba para ver más</span>
+                <span className="text-[10px] text-gray-400">Desliza arriba para ver más</span>
               </div>
             )}
 
@@ -299,7 +299,7 @@ export default function VentanaChat({
                         <p className="whitespace-pre-wrap break-words">{msg.contenido}</p>
                       </AntiScreenshotWrapper>
                       <time className={`mt-0.5 block text-right text-[10px] ${
-                        msg.esMio ? 'text-accent-foreground/60' : 'text-muted'
+                        msg.esMio ? 'text-accent-foreground/60' : 'text-gray-400'
                       }`}>
                         {msg.creadoEn}
                       </time>
@@ -318,7 +318,7 @@ export default function VentanaChat({
           {/* Adjuntar (placeholder) */}
           <button
             type="button"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-elevated hover:text-foreground"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-gray-400 transition-colors hover:bg-surface-elevated hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             aria-label="Adjuntar archivo"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -330,7 +330,7 @@ export default function VentanaChat({
           <select
             value={expiracion === null ? '' : expiracion.toString()}
             onChange={(e) => setExpiracion(e.target.value ? Number(e.target.value) : null)}
-            className="h-10 rounded-xl border border-border bg-surface px-2 text-xs text-muted outline-none transition-colors hover:text-foreground focus:border-accent"
+            className="h-11 rounded-xl border border-border bg-surface px-2 text-xs text-gray-400 outline-none transition-colors hover:text-foreground focus:border-accent focus:ring-2 focus:ring-accent"
             title="Autodestrucción"
           >
             <option value="">Permanente</option>
@@ -346,7 +346,7 @@ export default function VentanaChat({
             onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje…"
             rows={1}
-            className="max-h-[120px] min-h-[40px] flex-1 resize-none rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted outline-none transition-colors focus:border-accent"
+            className="max-h-[120px] min-h-[44px] flex-1 resize-none rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-gray-400 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent"
           />
 
           {/* Enviar */}
@@ -354,7 +354,7 @@ export default function VentanaChat({
             type="button"
             onClick={enviar}
             disabled={!texto.trim()}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-all hover:bg-accent-hover disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-all hover:bg-accent-hover disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
             aria-label="Enviar mensaje"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

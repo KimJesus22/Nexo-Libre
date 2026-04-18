@@ -28,7 +28,7 @@ const MAX_INVITACIONES_ACTIVAS = 5
 /* ── Generar invitación ───────────────────────────────────────────────────── */
 
 export async function crearInvitacion(): Promise<
-  { ok: true; url: string; token: string; caducaEn: string } |
+  { ok: true; url: string; token: string; caducaEn: string; id: string } |
   { ok: false; error: string }
 > {
   const supabase = await createClient()
@@ -61,12 +61,14 @@ export async function crearInvitacion(): Promise<
   const token = randomBytes(32).toString('hex')
 
   // Insertar en la base de datos
-  const { error: errorInsert } = await supabase
+  const { data: insertData, error: errorInsert } = await supabase
     .from('invitaciones')
     .insert({
       creador_id: user.id,
       token,
     })
+    .select('id')
+    .single()
 
   if (errorInsert) {
     return { ok: false, error: 'Error al crear la invitación.' }
@@ -77,7 +79,7 @@ export async function crearInvitacion(): Promise<
   const url = `${baseUrl}/join/${token}`
   const caducaEn = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
-  return { ok: true, url, token, caducaEn }
+  return { ok: true, url, token, caducaEn, id: insertData.id as string }
 }
 
 /* ── Listar invitaciones del usuario ──────────────────────────────────────── */
@@ -115,6 +117,29 @@ export async function listarMisInvitaciones() {
   }))
 
   return { ok: true as const, invitaciones }
+}
+
+/* ── Revocar/Eliminar invitación ────────────────────────────────────────────── */
+
+export async function revocarInvitacion(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { ok: false as const, error: 'No autenticado.' }
+  }
+
+  const { error } = await supabase
+    .from('invitaciones')
+    .delete()
+    .eq('id', id)
+    .eq('creador_id', user.id)
+
+  if (error) {
+    return { ok: false as const, error: error.message }
+  }
+
+  return { ok: true as const }
 }
 
 /* ── Utilidades ───────────────────────────────────────────────────────────── */

@@ -14,7 +14,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { crearInvitacion, listarMisInvitaciones } from '../_acciones/invitaciones'
+import { toast } from 'sonner'
+import { crearInvitacion, listarMisInvitaciones, revocarInvitacion } from '../_acciones/invitaciones'
 
 /* ── Tipos ────────────────────────────────────────────────────────────────── */
 interface Invitacion {
@@ -60,8 +61,34 @@ export default function PanelInvitaciones() {
       return
     }
 
-    // Copiar al portapapeles automáticamente
-    await copiarAlPortapapeles(res.url, res.token)
+    // Copiar al portapapeles y notificar
+    try {
+      await navigator.clipboard.writeText(res.url)
+    } catch {
+      // Ignore if clipboard fails
+    }
+
+    toast.success('Invitación generada', {
+      description: 'El enlace caduca en 24 horas y solo se puede usar una vez.',
+      action: {
+        label: 'Copiar',
+        onClick: () => navigator.clipboard.writeText(res.url),
+      },
+      cancel: {
+        label: 'Eliminar',
+        onClick: async () => {
+          const revRes = await revocarInvitacion(res.id || '') // if it returned id, otherwise we must get it from the latest list
+          if (revRes.ok) {
+            toast.success('Invitación revocada correctamente')
+            cargar()
+          } else {
+            toast.error('Error al revocar la invitación')
+          }
+        }
+      },
+      duration: 10000,
+    })
+
     await cargar()
     setGenerando(false)
   }
@@ -90,7 +117,7 @@ export default function PanelInvitaciones() {
           <h2 className="text-lg font-semibold text-foreground">
             Invitaciones seguras
           </h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-gray-400">
             Genera enlaces de un solo uso que caducan en 24 horas.
           </p>
         </div>
@@ -101,7 +128,7 @@ export default function PanelInvitaciones() {
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
             {activas} activa{activas !== 1 ? 's' : ''}
           </span>
-          <span className="text-muted">
+          <span className="text-gray-400">
             {usadas} usada{usadas !== 1 ? 's' : ''}
           </span>
         </div>
@@ -136,6 +163,11 @@ export default function PanelInvitaciones() {
         )}
       </button>
 
+      {/* Texto de ayuda sobre caducidad */}
+      <p className="text-xs text-center text-gray-400 mb-6">
+        Las invitaciones caducan automáticamente <strong>24 horas</strong> después de ser generadas o inmediatamente tras su primer uso.
+      </p>
+
       {/* Error */}
       {error && (
         <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2.5 text-sm text-destructive">
@@ -157,7 +189,7 @@ export default function PanelInvitaciones() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-1.06a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 116.364 6.364l-1.757 1.757" />
             </svg>
           </div>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-gray-400">
             No tienes invitaciones. Genera una para compartir.
           </p>
         </div>
@@ -183,7 +215,7 @@ export default function PanelInvitaciones() {
                       <span
                         className={`inline-block h-2 w-2 shrink-0 rounded-full ${
                           inv.usado
-                            ? 'bg-muted'
+                            ? 'bg-gray-400'
                             : inv.expirado
                               ? 'bg-warning'
                               : 'bg-accent animate-pulse'
@@ -193,7 +225,7 @@ export default function PanelInvitaciones() {
                         {inv.token.slice(0, 16)}…{inv.token.slice(-8)}
                       </code>
                     </div>
-                    <div className="mt-1 flex items-center gap-3 text-[10px] text-muted">
+                    <div className="mt-1 flex items-center gap-3 text-[10px] text-gray-400">
                       <span>
                         {inv.usado
                           ? `Usada ${formatearTiempo(inv.usadoEn!)}`
@@ -240,7 +272,7 @@ export default function PanelInvitaciones() {
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
                         inv.usado
-                          ? 'bg-surface-elevated text-muted'
+                          ? 'bg-surface-elevated text-gray-400'
                           : 'bg-warning/10 text-warning'
                       }`}
                     >

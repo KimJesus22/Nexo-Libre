@@ -418,6 +418,10 @@ Landing page en **modo oscuro** con paleta de alto contraste institucional:
 - **Onboarding Guiado**: Flujo de bienvenida opcional con componente `OnboardingTour` interactivo y desenfoque de fondo (`backdrop-blur`).
 - **Dashboard Mobile-First**: Reestructuración de métricas y gráficos para pantallas pequeñas (`flex-col`, `overflow-x-auto`), manteniendo el *layout* intacto sin colapsos de texto.
 - **Métricas Estandarizadas**: Componente `StatusCard` global para presentar estados de seguridad (Activo/Inactivo) con iconografía accesible y paleta WCAG.
+- **Privacidad Accesible**: Modales de confirmación en acciones destructivas y rediseño de *Toggles* (interruptores) empleando casillas de verificación nativas invisibles (`peer-checked`) con confirmación visual (✓/✕) y etiquetado ARIA, abandonando la dependencia al color.
+- **Navegación Global Adaptativa**: Implementación de un `NavegacionGlobal` tipo Header en escritorio y tipo Drawer en móviles, permitiendo fluidez entre secciones de la aplicación y resaltando visualmente la ruta activa.
+- **Interfaz de Chat Optimizada**: *Empty States* limpios para el área de chat y paneles laterales que aseguran una altura táctil estandarizada (`44px` a `56px`) en listas y controles de mensajería (Pointer Coarse).
+- **Legibilidad Estricta**: Refactorización profunda para elevar todos los textos secundarios y *placeholders* hacia escalas grises legibles (e.g. `text-gray-400`), superando los rangos de contraste de WCAG AA.
 
 ## Despliegue
 

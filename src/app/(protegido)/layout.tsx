@@ -11,6 +11,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ProveedorOnboarding from './_componentes/ProveedorOnboarding'
+import NavegacionGlobal from './_componentes/NavegacionGlobal'
 
 export default async function LayoutProtegido({
   children,
@@ -39,7 +40,12 @@ export default async function LayoutProtegido({
       emailUsuario={user.email ?? ''}
       requiereOnboarding={requiereOnboarding}
     >
-      {children}
+      <div className="flex min-h-screen flex-col">
+        <NavegacionGlobal />
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
+      </div>
     </ProveedorOnboarding>
   )
 }
