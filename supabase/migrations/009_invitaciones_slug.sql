@@ -2,7 +2,8 @@
 alter table public.invitaciones add column if not exists slug text unique;
 
 -- Modificar funcion consumir_invitacion para aceptar token o slug
-create or replace function privado.consumir_invitacion(p_token_or_slug text)
+-- (Mantenemos el nombre del parametro p_token para evitar errores de CREATE OR REPLACE)
+create or replace function privado.consumir_invitacion(p_token text)
 returns uuid
 language plpgsql
 security definer
@@ -16,7 +17,7 @@ begin
     set usado = true,
         usado_por = (select auth.uid()),
         usado_en = now()
-    where (token = p_token_or_slug or slug = p_token_or_slug)
+    where (token = p_token or slug = p_token)
       and not usado
       and caduca_en > now()
     returning creador_id into v_creador_id;
