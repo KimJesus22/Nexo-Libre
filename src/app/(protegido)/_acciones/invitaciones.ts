@@ -45,7 +45,32 @@ export async function crearInvitacion(): Promise<
     return { ok: false, error: rateLimit.error as string }
   }
 
-  // Verificar límite de invitaciones activas (no usadas y no expiradas)
+  // Obtener username o email para el slug
+  let slugBase = user.email ? user.email.split('@')[0] : 'usuario'
+  const { data: perfil } = await supabase.from('perfiles').select('nombre_usuario').eq('id', user.id).single()
+  if (perfil?.nombre_usuario) {
+    slugBase = perfil.nombre_usuario
+  }
+  slugBase = slugBase.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase()
+
+  // Buscar si el usuario YA tiene una invitacion activa (no usada, no expirada)
+  const { data: existente } = await supabase
+    .from('invitaciones')
+    .select('id, token, slug, caduca_en')
+    .eq('creador_id', user.id)
+    .eq('usado', false)
+    .gt('caduca_en', new Date().toISOString())
+    .order('creado_en', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (existente) {
+    const enlaceSlug = existente.slug || existente.token
+    const url = `${getBaseUrl()}/join/${enlaceSlug}`
+    return { ok: true, url, token: enlaceSlug, caducaEn: existente.caduca_en, id: existente.id }
+  }
+
+  // Verificar límite de invitaciones activas
   const { count, error: errorConteo } = await supabase
     .from('invitaciones')
     .select('id', { count: 'exact', head: true })
@@ -64,7 +89,14 @@ export async function crearInvitacion(): Promise<
     }
   }
 
-  // Generar token criptográfico (32 bytes = 64 hex chars)
+  // Comprobar colisión del slug
+  let slugFinal = slugBase
+  const { data: colision } = await supabase.from('invitaciones').select('id').eq('slug', slugFinal).maybeSingle()
+  if (colision) {
+    slugFinal = `${slugBase}-${randomBytes(2).toString('hex')}`
+  }
+
+  // Generar token criptográfico subyacente (por si acaso o para retrocompatibilidad)
   const token = randomBytes(32).toString('hex')
 
   // Insertar en la base de datos
@@ -73,6 +105,7 @@ export async function crearInvitacion(): Promise<
     .insert({
       creador_id: user.id,
       token,
+      slug: slugFinal
     })
     .select('id')
     .single()
@@ -83,10 +116,10 @@ export async function crearInvitacion(): Promise<
 
   // Construir URL de invitación
   const baseUrl = getBaseUrl()
-  const url = `${baseUrl}/join/${token}`
+  const url = `${baseUrl}/join/${slugFinal}`
   const caducaEn = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
-  return { ok: true, url, token, caducaEn, id: insertData.id as string }
+  return { ok: true, url, token: slugFinal, caducaEn, id: insertData.id as string }
 }
 
 /* ── Listar invitaciones del usuario ──────────────────────────────────────── */
@@ -101,7 +134,7 @@ export async function listarMisInvitaciones() {
 
   const { data, error } = await supabase
     .from('invitaciones')
-    .select('id, token, usado, caduca_en, creado_en, usado_en')
+    .select('id, token, slug, usado, caduca_en, creado_en, usado_en')
     .eq('creador_id', user.id)
     .order('creado_en', { ascending: false })
     .limit(20)
@@ -112,16 +145,19 @@ export async function listarMisInvitaciones() {
 
   const baseUrl = getBaseUrl()
 
-  const invitaciones = (data ?? []).map((inv) => ({
-    id: inv.id as string,
-    token: inv.token as string,
-    url: `${baseUrl}/join/${inv.token}`,
-    usado: inv.usado as boolean,
-    expirado: new Date(inv.caduca_en as string) < new Date(),
-    caducaEn: inv.caduca_en as string,
-    creadoEn: inv.creado_en as string,
-    usadoEn: inv.usado_en as string | null,
-  }))
+  const invitaciones = (data ?? []).map((inv) => {
+    const enlaceSlug = inv.slug || inv.token
+    return {
+      id: inv.id as string,
+      token: enlaceSlug, // Enviar el slug como identificador principal
+      url: `${baseUrl}/join/${enlaceSlug}`,
+      usado: inv.usado as boolean,
+      expirado: new Date(inv.caduca_en as string) < new Date(),
+      caducaEn: inv.caduca_en as string,
+      creadoEn: inv.creado_en as string,
+      usadoEn: inv.usado_en as string | null,
+    }
+  })
 
   return { ok: true as const, invitaciones }
 }

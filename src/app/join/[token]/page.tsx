@@ -15,8 +15,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-/* ── Regex de validación del token ────────────────────────────────────────── */
-const TOKEN_REGEX = /^[a-f0-9]{64}$/
+/* ── Regex de validación del token/slug ───────────────────────────────────── */
+const TOKEN_REGEX = /^[a-zA-Z0-9_-]{3,64}$/
 
 export default async function PaginaInvitacion({
   params,

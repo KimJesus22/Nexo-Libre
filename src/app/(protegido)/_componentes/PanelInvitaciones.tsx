@@ -70,7 +70,7 @@ export default function PanelInvitaciones() {
     }
 
     toast.success('Invitación generada', {
-      description: 'El enlace caduca en 24 horas y solo se puede usar una vez.',
+      description: `Tu enlace (${res.url.split('/').pop()}) está listo para compartir. Caduca en 24h.`,
       action: {
         label: 'Copiar',
         onClick: () => navigator.clipboard.writeText(res.url),
@@ -223,7 +223,7 @@ export default function PanelInvitaciones() {
                         }`}
                       />
                       <code className="truncate text-xs text-foreground-secondary font-mono">
-                        {inv.token.slice(0, 16)}…{inv.token.slice(-8)}
+                        {inv.url.replace(/^https?:\/\//, '')}
                       </code>
                     </div>
                     <div className="mt-1 flex items-center gap-3 text-[10px] text-gray-400">
