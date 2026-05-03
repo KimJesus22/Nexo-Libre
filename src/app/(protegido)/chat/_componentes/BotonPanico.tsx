@@ -13,6 +13,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
+import { destruirCacheMensajes } from '@/lib/cache/mensajesCache'
 
 export default function BotonPanico() {
   const [activado, setActivado] = useState(false)
@@ -28,6 +29,9 @@ export default function BotonPanico() {
     } catch {
       // Ignorar errores si hay restricciones del navegador
     }
+
+    // Destruir caché IndexedDB de mensajes descifrados (fire-and-forget)
+    destruirCacheMensajes()
 
     // Usar window.location.replace para no dejar historial
     window.location.replace('https://duckduckgo.com/')

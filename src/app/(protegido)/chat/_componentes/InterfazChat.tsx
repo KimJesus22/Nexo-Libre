@@ -26,6 +26,7 @@ import { usePresenciaGlobal, useEscribiendo } from './usePresencia'
 import SkeletonChats from './SkeletonChats'
 import SkeletonMensajes from './SkeletonMensajes'
 import BotonPanico from './BotonPanico'
+import MarcaDeAgua from './MarcaDeAgua'
 
 /* ── Datos demo (fallback sin conexión) ───────────────────────────────────── */
 const CHATS_DEMO: ChatResumen[] = [
@@ -173,6 +174,9 @@ export default function InterfazChat() {
       
       {/* Botón de pánico anti-snooping */}
       <BotonPanico />
+
+      {/* Watermark forense anti-screenshot */}
+      <MarcaDeAgua userId={rt.userId} />
 
       {/* ── Indicador de modo ──────────────────────────────────────── */}
       {!usandoReal && rt.userId && (

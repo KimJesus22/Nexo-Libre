@@ -5,6 +5,7 @@ import "./globals.css";
 import RegistroSW from "./_componentes/RegistroSW";
 import ScriptAnaliticas from "./_componentes/ScriptAnaliticas";
 import EasterEgg from "./_componentes/EasterEgg";
+import PWAInstallPrompt from "./_componentes/PWAInstallPrompt";
 import { Toaster } from "sonner";
 
 /* ── Tipografías ─────────────────────────────────────────────────────────── */
@@ -39,7 +40,6 @@ export const metadata: Metadata = {
   description:
     "Plataforma de mensajería segura con cifrado de extremo a extremo real. Sin números de teléfono, sin recolección de datos. Tu privacidad no es negociable.",
   metadataBase: new URL("https://nexolibre.app"),
-  manifest: "/manifest.json",
   keywords: ["mensajería segura", "privacidad", "e2ee", "chat anónimo", "sin número de teléfono", "cifrado", "opensource"],
   authors: [{ name: "NexoLibre" }],
   creator: "NexoLibre",
@@ -125,6 +125,7 @@ export default function RootLayout({
       <body>
         {children}
         <Toaster position="top-center" richColors theme="dark" toastOptions={{ "aria-live": "polite" } as Record<string, string>} />
+        <PWAInstallPrompt />
         <RegistroSW />
         <ScriptAnaliticas />
         <EasterEgg />

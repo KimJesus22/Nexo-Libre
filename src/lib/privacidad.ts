@@ -9,8 +9,11 @@
  *     • Mensajes en memoria (state)
  *     • Claves E2EE de localStorage
  *     • Cache del navegador para la app
+ *     • Base de datos IndexedDB de mensajes cacheados (localforage)
  *   - Refuerza la política de "cero rastros"
  */
+
+import { destruirCacheMensajes } from '@/lib/cache/mensajesCache'
 
 const CLAVE_PREFERENCIAS = 'nexo_privacidad'
 
@@ -82,13 +85,23 @@ export function purgarDatosLocales(): void {
       nombres.forEach((nombre) => caches.delete(nombre))
     })
   }
+
+  // 4. Destruir IndexedDB de mensajes cacheados (localforage)
+  destruirCacheMensajes()
 }
 
 /**
  * Verifica si el modo efímero está activo y ejecuta la purga si corresponde.
  * Llamar al cerrar sesión (antes de redirect).
+ *
+ * SIEMPRE destruye el caché de mensajes (IndexedDB) al cerrar sesión,
+ * independientemente del modo efímero, porque los mensajes descifrados
+ * no deben persistir después del cierre de sesión.
  */
 export function ejecutarPurgaSiEfimero(): void {
+  // Siempre destruir el caché de mensajes descifrados al cerrar sesión
+  destruirCacheMensajes()
+
   const prefs = obtenerPreferencias()
   if (prefs.modoEfimero) {
     purgarDatosLocales()

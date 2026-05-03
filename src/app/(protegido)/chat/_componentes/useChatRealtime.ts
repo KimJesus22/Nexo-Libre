@@ -30,6 +30,12 @@ import {
 } from '@/lib/crypto/e2ee'
 import { esquemaContenidoMensaje } from '@/lib/validacion'
 import { useColaOffline, type MensajePendiente } from './useColaOffline'
+import {
+  obtenerMensajesCacheados,
+  guardarMensajesEnCache,
+  agregarMensajeAlCache,
+  prependMensajesAlCache,
+} from '@/lib/cache/mensajesCache'
 
 /* ── Tipos de base de datos ───────────────────────────────────────────────── */
 interface MensajeDB {
@@ -255,6 +261,14 @@ export function useChatRealtime() {
     cursorRef.current = null
     setHayMasAntiguos(false)
 
+    // ── Fase 1: Mostrar mensajes cacheados inmediatamente (offline-first) ──
+    const cacheados = await obtenerMensajesCacheados(chatId)
+    if (cacheados && cacheados.length > 0) {
+      setMensajes(cacheados)
+      // No bloquear la UI — el fetch de red se hace en paralelo
+    }
+
+    // ── Fase 2: Fetch de red (fuente de verdad) ─────────────────────────────
     // Traer los últimos PAGE_SIZE mensajes (desc) y revertir para orden cronológico
     const { data: mensajesDB } = await supabase
       .from('mensajes')
@@ -264,7 +278,10 @@ export function useChatRealtime() {
       .limit(PAGE_SIZE)
 
     if (!mensajesDB || mensajesDB.length === 0) {
-      setMensajes([])
+      // Si no hay datos de red pero sí caché, mantener el caché (offline)
+      if (!cacheados || cacheados.length === 0) {
+        setMensajes([])
+      }
       setCargandoMensajes(false)
       return
     }
@@ -288,6 +305,9 @@ export function useChatRealtime() {
 
     setMensajes(mensajesMapeados)
     setCargandoMensajes(false)
+
+    // ── Fase 3: Persistir en caché para acceso offline ──────────────────────
+    guardarMensajesEnCache(chatId, mensajesMapeados)
   }, [userId, supabase, resolverNombres, descifrarYMapear])
 
   /* ── 3b. Cargar página anterior (scroll hacia arriba) ───────────────── */
@@ -326,6 +346,11 @@ export function useChatRealtime() {
     // Prepend: insertar al inicio manteniendo el orden cronológico
     setMensajes((prev) => [...nuevos, ...prev])
     setCargandoAntiguos(false)
+
+    // Persistir mensajes antiguos en caché
+    if (chatActivoId) {
+      prependMensajesAlCache(chatActivoId, nuevos)
+    }
   }, [chatActivoId, userId, cargandoAntiguos, supabase, resolverNombres, descifrarYMapear])
 
   /* ── Notificaciones de Audio ───────────────────────────────────────────── */
@@ -456,6 +481,9 @@ export function useChatRealtime() {
             if (prev.some((m) => m.id === mensajeNuevo.id)) return prev
             return [...prev, mensajeNuevo]
           })
+
+          // Persistir en caché para acceso offline
+          agregarMensajeAlCache(chatActivoId, mensajeNuevo)
 
           // Actualizar último mensaje en la sidebar
           setChats((prevChats) =>

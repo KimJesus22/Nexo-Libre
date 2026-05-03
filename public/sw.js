@@ -2,24 +2,27 @@
  * Service Worker — NexoLibre PWA
  *
  * Estrategia de caché:
- *   - INSTALL: pre-cachea el shell de la app (HTML, CSS, fuentes)
+ *   - INSTALL: pre-cachea el shell de la app (HTML, CSS, fuentes, offline page)
  *   - FETCH: Cache-First para assets estáticos, Network-First para API/páginas
  *   - ACTIVATE: limpia cachés antiguas al actualizar la versión
+ *   - OFFLINE: redirige a /offline cuando no hay conexión ni caché
  *
  * Versión del caché: incrementar CACHE_VERSION al hacer deploy
  * para forzar actualización de recursos.
  */
 
-const CACHE_VERSION = 'nexolibre-v1'
+const CACHE_VERSION = 'nexolibre-v2'
 const CACHE_STATIC = `${CACHE_VERSION}-static`
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`
+const OFFLINE_URL = '/offline'
 
 /* ── Recursos del shell (pre-cacheados en install) ────────────────────────── */
 const SHELL_RESOURCES = [
   '/',
   '/iniciar-sesion',
   '/registrarse',
-  '/manifest.json',
+  OFFLINE_URL,
+  '/manifest.webmanifest',
   '/icon-192.png',
   '/icon-512.png',
 ]
@@ -38,6 +41,7 @@ const NO_CACHE_PATTERNS = [
   /supabase\.co/,             // Supabase API
   /\/auth\//,                 // Auth callbacks
   /chrome-extension/,         // Extensiones del navegador
+  /\/_next\/data\//,          // Next.js data fetches (keep fresh)
 ]
 
 /* ── INSTALL: pre-cachear shell ───────────────────────────────────────────── */
@@ -83,15 +87,15 @@ self.addEventListener('fetch', (event) => {
   // No cachear requests con credenciales a otros orígenes
   if (url.origin !== self.location.origin && request.credentials === 'include') return
 
-  // Assets estáticos: Cache-First (rápido, inmutable)
-  if (STATIC_PATTERNS.some((pattern) => pattern.test(url.pathname))) {
-    event.respondWith(cacheFirst(request))
+  // Páginas HTML (navigation requests): Network-First con fallback a /offline
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstWithOfflineFallback(request))
     return
   }
 
-  // Páginas HTML: Network-First (contenido actualizado)
-  if (request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(networkFirst(request))
+  // Assets estáticos: Cache-First (rápido, inmutable)
+  if (STATIC_PATTERNS.some((pattern) => pattern.test(url.pathname))) {
+    event.respondWith(cacheFirst(request))
     return
   }
 
@@ -129,5 +133,37 @@ async function networkFirst(request) {
     const cached = await caches.match(request)
     if (cached) return cached
     return new Response('Offline', { status: 503 })
+  }
+}
+
+/* ── Estrategia Network-First con fallback a página offline ───────────────── */
+async function networkFirstWithOfflineFallback(request) {
+  try {
+    const response = await fetch(request)
+    if (response.ok || response.type === 'opaqueredirect') {
+      // Cachear la página para futuras visitas offline
+      const cache = await caches.open(CACHE_DYNAMIC)
+      cache.put(request, response.clone())
+      return response
+    }
+    // Si la respuesta no es OK (e.g. 404), devolverla tal cual
+    return response
+  } catch {
+    // Sin conexión — intentar desde caché
+    const cached = await caches.match(request)
+    if (cached) return cached
+
+    // Sin caché — mostrar página offline pre-cacheada
+    const offlinePage = await caches.match(OFFLINE_URL)
+    if (offlinePage) return offlinePage
+
+    // Último recurso: respuesta genérica
+    return new Response(
+      '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Sin conexión</title></head><body style="background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui"><div style="text-align:center"><h1>Sin conexión</h1><p>Verifica tu conexión e intenta de nuevo.</p><button onclick="location.reload()" style="margin-top:1rem;padding:.75rem 1.5rem;background:#10b981;color:#022c22;border:none;border-radius:.75rem;cursor:pointer;font-weight:500">Reintentar</button></div></body></html>',
+      {
+        status: 503,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      }
+    )
   }
 }
